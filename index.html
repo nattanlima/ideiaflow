@@ -67,7 +67,7 @@
             </div>
             <form id="auth-form" class="mt-8 space-y-6">
                 <div class="rounded-xl shadow-sm -space-y-px">
-                    <input id="phone" name="phone" type="tel" required class="relative block w-full appearance-none rounded-t-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Telefone com código do país">
+                    <input id="phone" name="phone" type="tel" autocomplete="tel" required class="relative block w-full appearance-none rounded-t-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Telefone com código do país">
                     <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full appearance-none rounded-b-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Senha (mínimo 6 caracteres)">
                 </div>
                 <button type="submit" id="submit-button" class="group relative flex w-full justify-center rounded-xl border border-transparent bg-gray-900 py-3 px-4 text-sm font-semibold text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"><span id="button-text">Entrar</span></button>
@@ -79,7 +79,7 @@
     
     <!-- TELA DE CARREGAMENTO -->
     <div id="loading-screen" class="hidden flex items-center justify-center min-h-screen">
-        <p class="text-gray-500">Carregando suas ideias...</p>
+        <p class="text-gray-500">Carregando...</p>
     </div>
 
     <!-- TELA DO APLICATIVO -->
@@ -190,6 +190,7 @@
                     appScreen.classList.add('hidden');
                     loadingScreen.classList.remove('hidden');
 
+                    // CORREÇÃO: Encadeia as promessas para garantir a ordem
                     await fetchUserData();
                     await fetchAndRenderIdeas();
                     
@@ -202,7 +203,7 @@
                     currentUser = null; allIdeas = [];
                 }
             } catch (error) {
-                console.error("Erro ao carregar dados do usuário:", error);
+                console.error("Erro ao inicializar o app:", error);
                 loadingScreen.classList.add('hidden');
                 appScreen.classList.add('hidden');
                 loginScreen.classList.remove('hidden');
@@ -235,19 +236,21 @@
         
         async function fetchUserData() {
             const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
-            if (userError) throw userError;
+            if (userError) throw new Error(`Erro ao buscar usuário: ${userError.message}`);
             if (user) {
                 const { data, error } = await supabaseClient.from('usuarios').select('nome').eq('id', user.id).maybeSingle();
-                if (error) throw error;
+                if (error) throw new Error(`Erro ao buscar perfil: ${error.message}`);
                 currentUser = data ? { ...user, nome: data.nome } : user;
                 updateProfileUI();
+            } else {
+                throw new Error("Nenhum usuário logado encontrado.");
             }
         }
 
         // --- LÓGICA DO APP ---
         async function fetchAndRenderIdeas() {
             const { data, error } = await supabaseClient.from('ideias').select('*').order('created_at', { ascending: false });
-            if (error) throw error;
+            if (error) throw new Error(`Erro ao buscar ideias: ${error.message}`);
             allIdeas = data || [];
             renderIdeasByStatus();
         }
