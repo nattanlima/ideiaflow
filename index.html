@@ -185,7 +185,6 @@
         // --- AUTENTICAÇÃO ---
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (session) {
-                // CORREÇÃO: Mostra a tela de carregamento enquanto busca os dados
                 loginScreen.classList.add('hidden');
                 appScreen.classList.add('hidden');
                 loadingScreen.classList.remove('hidden');
@@ -193,7 +192,6 @@
                 await fetchUserData();
                 await fetchAndRenderIdeas();
                 
-                // Apenas mostra a tela do app depois que tudo estiver carregado
                 loadingScreen.classList.add('hidden');
                 appScreen.classList.remove('hidden');
             } else {
@@ -329,7 +327,7 @@
             const { error } = await supabaseClient.from('ideias').update({ is_public: true }).eq('id', id);
             if (error) { alert('Erro ao preparar compartilhamento.'); return; }
             const shareUrl = `${window.location.origin}/share.html?id=${id}`;
-            const text = `Ei! ✨\n\nDá uma olhada nesta ideia que organizei no IdeiaFlow:\n\n${shareUrl}\n\nÉ uma ferramenta que estou usando para salvar e organizar minhas ideias de marketing. Achei que você ia gostar! �`;
+            const text = `Ei! ✨\n\nDá uma olhada nesta ideia que organizei no IdeiaFlow:\n\n${shareUrl}\n\nÉ uma ferramenta que estou usando para salvar e organizar minhas ideias de marketing. Achei que você ia gostar! 😉`;
             const encodedText = encodeURIComponent(text);
             const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
             window.open(whatsappUrl, '_blank');
