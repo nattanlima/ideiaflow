@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="light">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,14 +23,6 @@
             --card-bg-rgb: 255, 255, 255;
             --subtle-border-rgb: 229, 231, 235;
             --accent-rgb: 17, 24, 39;
-        }
-
-        html.dark {
-            --background-rgb: 17, 24, 39;
-            --foreground-rgb: 229, 231, 235;
-            --card-bg-rgb: 31, 41, 55;
-            --subtle-border-rgb: 55, 65, 81;
-            --accent-rgb: 249, 250, 251;
         }
 
         body {
@@ -62,7 +54,7 @@
 <body class="overscroll-none">
 
     <!-- Fundo Decorativo -->
-    <div class="fixed inset-0 -z-10 h-full w-full bg-white dark:bg-gray-900">
+    <div class="fixed inset-0 -z-10 h-full w-full bg-white">
         <div class="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
     </div>
 
@@ -70,16 +62,16 @@
     <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
         <div class="w-full max-w-md p-8 space-y-8 glass-card rounded-3xl shadow-2xl">
             <div>
-                <h2 id="form-title" class="mt-6 text-center text-3xl font-bold tracking-tight">Acessar sua conta</h2>
+                <h2 id="form-title" class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Acessar sua conta</h2>
             </div>
             <form id="auth-form" class="mt-8 space-y-6">
                 <div class="rounded-xl shadow-sm -space-y-px">
-                    <input id="phone" name="phone" type="tel" required class="relative block w-full appearance-none rounded-t-xl border-0 bg-gray-100 dark:bg-gray-800 px-4 py-3 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Telefone com código do país">
-                    <input id="password" name="password" type="password" required class="relative block w-full appearance-none rounded-b-xl border-0 bg-gray-100 dark:bg-gray-800 px-4 py-3 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Senha (mínimo 6 caracteres)">
+                    <input id="phone" name="phone" type="tel" required class="relative block w-full appearance-none rounded-t-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Telefone com código do país">
+                    <input id="password" name="password" type="password" required class="relative block w-full appearance-none rounded-b-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Senha (mínimo 6 caracteres)">
                 </div>
-                <button type="submit" id="submit-button" class="group relative flex w-full justify-center rounded-xl border border-transparent bg-gray-900 py-3 px-4 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:ring-offset-gray-800"><span id="button-text">Entrar</span></button>
+                <button type="submit" id="submit-button" class="group relative flex w-full justify-center rounded-xl border border-transparent bg-gray-900 py-3 px-4 text-sm font-semibold text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"><span id="button-text">Entrar</span></button>
             </form>
-            <div class="text-sm text-center"><a href="#" id="toggle-form" class="font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Não tem uma conta? Cadastre-se</a></div>
+            <div class="text-sm text-center"><a href="#" id="toggle-form" class="font-medium text-gray-600 hover:text-gray-900">Não tem uma conta? Cadastre-se</a></div>
             <div id="message-box" class="text-center text-sm font-medium"></div>
         </div>
     </div>
@@ -87,19 +79,19 @@
     <!-- TELA DO APLICATIVO -->
     <div id="app-screen" class="hidden w-full h-screen flex flex-col">
         <header class="p-4 flex justify-between items-center glass-card">
-            <h1 class="text-xl font-bold">IdeiaFlow</h1>
-            <button id="profile-button" class="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center font-bold text-lg"></button>
+            <h1 class="text-xl font-bold text-gray-900">IdeiaFlow</h1>
+            <button id="profile-button" class="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center font-bold text-lg text-gray-700"></button>
         </header>
 
         <main id="kanban-content" class="flex-1 overflow-y-auto p-4 space-y-4">
             <!-- Cards -->
         </main>
         
-        <button id="add-idea-fab" class="fixed bottom-24 right-5 w-16 h-16 bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900 rounded-2xl shadow-lg flex items-center justify-center hover:bg-gray-800 transition-transform duration-200 active:scale-90">
+        <button id="add-idea-fab" class="fixed bottom-24 right-5 w-16 h-16 bg-gray-900 text-white rounded-2xl shadow-lg flex items-center justify-center hover:bg-gray-800 transition-transform duration-200 active:scale-90">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
         </button>
 
-        <nav class="grid grid-cols-4 gap-2 p-2 m-4 rounded-2xl glass-card text-gray-500 dark:text-gray-400">
+        <nav class="grid grid-cols-4 gap-2 p-2 m-4 rounded-2xl glass-card text-gray-500">
             <button class="nav-tab active-tab flex flex-col items-center p-2 rounded-lg" data-status="A FAZER"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg><span class="text-xs font-semibold">A Fazer</span></button>
             <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="EM ANDAMENTO"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-semibold">Em Andamento</span></button>
             <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="CONCLUÍDA"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-semibold">Concluída</span></button>
@@ -114,23 +106,30 @@
             <h3 id="idea-modal-title" class="text-2xl font-bold mb-6">Nova Ideia</h3>
             <form id="idea-form" class="space-y-4">
                 <input type="hidden" id="idea-id">
+                <input type="hidden" id="idea-is-public">
                 <div>
                     <label for="idea-title" class="block text-sm font-medium mb-1">Título</label>
-                    <input type="text" id="idea-title" required class="w-full p-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-gray-500">
+                    <input type="text" id="idea-title" required class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500">
                 </div>
                 <div>
                     <label for="idea-description" class="block text-sm font-medium mb-1">Descrição</label>
-                    <textarea id="idea-description" rows="4" class="w-full p-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-gray-500"></textarea>
+                    <textarea id="idea-description" rows="4" class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500"></textarea>
                 </div>
                 <div>
                     <label for="idea-status" class="block text-sm font-medium mb-1">Status</label>
-                    <select id="idea-status" class="w-full p-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-gray-500">
+                    <select id="idea-status" class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500">
                         <option>A FAZER</option> <option>EM ANDAMENTO</option> <option>CONCLUÍDA</option> <option>ARQUIVADA</option>
                     </select>
                 </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" id="idea-modal-close" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Cancelar</button>
-                    <button type="submit" id="idea-modal-save" class="px-5 py-2 bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900 rounded-xl font-semibold">Salvar</button>
+                <div class="flex justify-between items-center pt-4">
+                    <button type="button" id="share-button" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path></svg>
+                        <span>Compartilhar</span>
+                    </button>
+                    <div class="flex space-x-3">
+                        <button type="button" id="idea-modal-close" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800">Cancelar</button>
+                        <button type="submit" id="idea-modal-save" class="px-5 py-2 bg-gray-900 text-white rounded-xl font-semibold">Salvar</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -143,20 +142,13 @@
             <form id="profile-form" class="space-y-6">
                 <div>
                     <label for="profile-name" class="block text-sm font-medium mb-1">Nome</label>
-                    <input type="text" id="profile-name" class="w-full p-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-gray-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">Tema</label>
-                    <div class="flex items-center space-x-4 p-1 bg-gray-200 dark:bg-gray-900 rounded-xl">
-                        <button type="button" id="theme-light" class="w-full p-2 rounded-lg font-semibold">Claro</button>
-                        <button type="button" id="theme-dark" class="w-full p-2 rounded-lg font-semibold">Escuro</button>
-                    </div>
+                    <input type="text" id="profile-name" class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500">
                 </div>
                 <div class="flex justify-between items-center pt-4">
                     <button type="button" id="logout-button-modal" class="px-5 py-2 bg-red-500 text-white rounded-xl font-semibold">Sair</button>
                     <div>
-                        <button type="button" id="profile-modal-close" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Fechar</button>
-                        <button type="submit" class="px-5 py-2 bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900 rounded-xl font-semibold">Salvar</button>
+                        <button type="button" id="profile-modal-close" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800">Fechar</button>
+                        <button type="submit" class="px-5 py-2 bg-gray-900 text-white rounded-xl font-semibold">Salvar</button>
                     </div>
                 </div>
             </form>
@@ -177,8 +169,8 @@
         const loginScreen = document.getElementById('login-screen'), appScreen = document.getElementById('app-screen');
         const authForm = document.getElementById('auth-form'), phoneInput = document.getElementById('phone'), passwordInput = document.getElementById('password'), submitButton = document.getElementById('submit-button'), buttonText = document.getElementById('button-text'), messageBox = document.getElementById('message-box'), toggleFormLink = document.getElementById('toggle-form'), formTitle = document.getElementById('form-title');
         const profileButton = document.getElementById('profile-button'), kanbanContent = document.getElementById('kanban-content'), navTabs = document.querySelectorAll('.nav-tab'), addIdeaFab = document.getElementById('add-idea-fab');
-        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save');
-        const profileModal = document.getElementById('profile-modal'), profileForm = document.getElementById('profile-form'), profileNameInput = document.getElementById('profile-name'), profileModalClose = document.getElementById('profile-modal-close'), logoutButtonModal = document.getElementById('logout-button-modal'), themeLightBtn = document.getElementById('theme-light'), themeDarkBtn = document.getElementById('theme-dark');
+        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareButton = document.getElementById('share-button');
+        const profileModal = document.getElementById('profile-modal'), profileForm = document.getElementById('profile-form'), profileNameInput = document.getElementById('profile-name'), profileModalClose = document.getElementById('profile-modal-close'), logoutButtonModal = document.getElementById('logout-button-modal');
 
         // --- AUTENTICAÇÃO ---
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -249,8 +241,8 @@
             const date = new Date(idea.created_at).toLocaleDateString('pt-BR');
             card.innerHTML = `
                 <h3 class="font-bold text-lg mb-2 truncate">${idea.titulo}</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 h-10 overflow-hidden text-ellipsis">${idea.descricao || ''}</p>
-                <div class="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 pt-2 border-t" style="border-color: rgba(var(--subtle-border-rgb), 0.5)">
+                <p class="text-sm text-gray-500 mb-3 h-10 overflow-hidden text-ellipsis">${idea.descricao || ''}</p>
+                <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t" style="border-color: rgba(var(--subtle-border-rgb), 0.5)">
                     <span>ID: ${idea.id}</span>
                     <span>${date}</span>
                 </div>
@@ -279,6 +271,7 @@
             ideaTitleInput.value = idea ? idea.titulo : '';
             ideaDescriptionInput.value = idea ? idea.descricao : '';
             ideaStatusSelect.value = idea ? idea.status : currentStatusFilter;
+            shareButton.style.display = idea ? 'flex' : 'none'; // Mostra o botão de compartilhar apenas na edição
             openModal(ideaModal);
         }
 
@@ -299,6 +292,28 @@
             else { closeModal(ideaModal); await fetchAndRenderIdeas(); }
         });
 
+        shareButton.addEventListener('click', async () => {
+            const id = ideaIdInput.value;
+            if (!id) return;
+
+            // 1. Torna a ideia pública
+            const { error } = await supabaseClient.from('ideias').update({ is_public: true }).eq('id', id);
+            if (error) {
+                alert('Erro ao compartilhar ideia.');
+                return;
+            }
+
+            // 2. Cria e copia o link
+            const shareUrl = `${window.location.origin}/share.html?id=${id}`;
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                const originalText = shareButton.querySelector('span').textContent;
+                shareButton.querySelector('span').textContent = 'Link Copiado!';
+                setTimeout(() => {
+                    shareButton.querySelector('span').textContent = originalText;
+                }, 2000);
+            });
+        });
+
         function updateProfileUI() {
             if (currentUser) {
                 profileNameInput.value = currentUser.nome || '';
@@ -317,19 +332,6 @@
             else { await fetchUserData(); closeModal(profileModal); }
         });
         
-        function applyTheme(theme) {
-            document.documentElement.classList.toggle('dark', theme === 'dark');
-            themeDarkBtn.classList.toggle('bg-gray-800', theme === 'dark');
-            themeDarkBtn.classList.toggle('text-white', theme === 'dark');
-            themeLightBtn.classList.toggle('bg-white', theme === 'light');
-            themeLightBtn.classList.toggle('text-black', theme === 'light');
-            localStorage.setItem('theme', theme);
-        }
-
-        themeLightBtn.addEventListener('click', () => applyTheme('light'));
-        themeDarkBtn.addEventListener('click', () => applyTheme('dark'));
-        applyTheme(localStorage.getItem('theme') || 'light');
-
         // --- FUNÇÕES AUXILIARES DE UI ---
         function updateFormUI() {
             formTitle.textContent = isLoginMode ? 'Acessar sua conta' : 'Crie sua conta';
