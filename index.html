@@ -76,6 +76,11 @@
             <div id="message-box" class="text-center text-sm font-medium"></div>
         </div>
     </div>
+    
+    <!-- TELA DE CARREGAMENTO -->
+    <div id="loading-screen" class="hidden flex items-center justify-center min-h-screen">
+        <p class="text-gray-500">Carregando suas ideias...</p>
+    </div>
 
     <!-- TELA DO APLICATIVO -->
     <div id="app-screen" class="hidden w-full h-screen flex flex-col">
@@ -171,7 +176,7 @@
         let isLoginMode = true, allIdeas = [], currentUser = null, currentStatusFilter = 'A FAZER';
 
         // --- ELEMENTOS DO DOM ---
-        const loginScreen = document.getElementById('login-screen'), appScreen = document.getElementById('app-screen');
+        const loginScreen = document.getElementById('login-screen'), appScreen = document.getElementById('app-screen'), loadingScreen = document.getElementById('loading-screen');
         const authForm = document.getElementById('auth-form'), phoneInput = document.getElementById('phone'), passwordInput = document.getElementById('password'), submitButton = document.getElementById('submit-button'), buttonText = document.getElementById('button-text'), messageBox = document.getElementById('message-box'), toggleFormLink = document.getElementById('toggle-form'), formTitle = document.getElementById('form-title');
         const profileButton = document.getElementById('profile-button'), kanbanContent = document.getElementById('kanban-content'), navTabs = document.querySelectorAll('.nav-tab'), addIdeaFab = document.getElementById('add-idea-fab');
         const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareOptions = document.getElementById('share-options'), copyLinkButton = document.getElementById('copy-link-button'), whatsappShareButton = document.getElementById('whatsapp-share-button');
@@ -180,13 +185,21 @@
         // --- AUTENTICAÇÃO ---
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (session) {
+                // CORREÇÃO: Mostra a tela de carregamento enquanto busca os dados
                 loginScreen.classList.add('hidden');
-                appScreen.classList.remove('hidden');
+                appScreen.classList.add('hidden');
+                loadingScreen.classList.remove('hidden');
+
                 await fetchUserData();
                 await fetchAndRenderIdeas();
+                
+                // Apenas mostra a tela do app depois que tudo estiver carregado
+                loadingScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
             } else {
                 loginScreen.classList.remove('hidden');
                 appScreen.classList.add('hidden');
+                loadingScreen.classList.add('hidden');
                 currentUser = null; allIdeas = [];
             }
         });
@@ -316,7 +329,7 @@
             const { error } = await supabaseClient.from('ideias').update({ is_public: true }).eq('id', id);
             if (error) { alert('Erro ao preparar compartilhamento.'); return; }
             const shareUrl = `${window.location.origin}/share.html?id=${id}`;
-            const text = `Ei! ✨\n\nDá uma olhada nesta ideia que organizei no IdeiaFlow:\n\n${shareUrl}\n\nÉ uma ferramenta que estou usando para salvar e organizar minhas ideias de marketing. Achei que você ia gostar! 😉`;
+            const text = `Ei! ✨\n\nDá uma olhada nesta ideia que organizei no IdeiaFlow:\n\n${shareUrl}\n\nÉ uma ferramenta que estou usando para salvar e organizar minhas ideias de marketing. Achei que você ia gostar! �`;
             const encodedText = encodeURIComponent(text);
             const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
             window.open(whatsappUrl, '_blank');
