@@ -24,6 +24,12 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -33,11 +39,18 @@
         <div class="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
     </div>
 
-    <main id="idea-container" class="w-full max-w-2xl p-8 bg-white/60 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl">
-        <!-- O conteúdo da ideia será inserido aqui -->
-        <div class="text-center">
-            <p>Carregando ideia...</p>
+    <main id="idea-container" class="w-full max-w-md text-center">
+        <div class="glass-card rounded-3xl shadow-2xl p-8">
+            <!-- O conteúdo da ideia será inserido aqui -->
+            <div id="content-placeholder">
+                <p>Carregando ideia...</p>
+            </div>
         </div>
+        
+        <!-- Botão de Call to Action -->
+        <a id="cta-button" href="#" class="hidden mt-8 inline-block w-full max-w-xs bg-green-500 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition-transform duration-200 hover:scale-105">
+            Gostou? Teste o IdeiaFlow!
+        </a>
     </main>
 
     <script type="module">
@@ -47,11 +60,11 @@
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const ideaContainer = document.getElementById('idea-container');
+        const ideaContainerContent = document.getElementById('content-placeholder');
+        const ctaButton = document.getElementById('cta-button');
 
         // --- LÓGICA DA PÁGINA ---
         async function fetchSharedIdea() {
-            // 1. Pega o ID da ideia da URL
             const params = new URLSearchParams(window.location.search);
             const ideaId = params.get('id');
 
@@ -60,12 +73,13 @@
                 return;
             }
 
-            // 2. Busca a ideia no Supabase
-            // A RLS que criamos permite esta consulta porque estamos buscando por um ID
-            // e a política permite a leitura se a ideia for pública.
+            // Busca a ideia e o nome do usuário em uma única consulta
             const { data: idea, error } = await supabaseClient
                 .from('ideias')
-                .select('*')
+                .select(`
+                    *,
+                    usuarios ( nome )
+                `)
                 .eq('id', ideaId)
                 .single();
 
@@ -74,27 +88,39 @@
                 return;
             }
             
-            // 3. Renderiza a ideia na tela
             renderIdea(idea);
         }
 
         function renderIdea(idea) {
-            const date = new Date(idea.created_at).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' });
+            const userName = idea.usuarios ? idea.usuarios.nome || 'Alguém' : 'Alguém';
+            const firstName = userName.split(' ')[0]; // Pega apenas o primeiro nome
+
             document.title = `${idea.titulo} | IdeiaFlow`;
-            ideaContainer.innerHTML = `
-                <span class="inline-block px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-200 rounded-full mb-4">
-                    ${idea.status}
-                </span>
-                <h1 class="text-4xl font-bold tracking-tight text-gray-900 mb-4">${idea.titulo}</h1>
-                <p class="text-sm text-gray-500 mb-6">Criada em ${date}</p>
-                <div class="prose max-w-none text-gray-700">
-                    <p>${idea.descricao.replace(/\n/g, '<br>')}</p>
+            ideaContainerContent.innerHTML = `
+                <img class="mx-auto h-16 w-auto mb-6" src="https://raw.githubusercontent.com/nattanlima/ideiaflow/refs/heads/main/logo.png" alt="Logotipo IdeiaFlow">
+                
+                <p class="text-gray-600 mb-4">💡 Ideia compartilhada por <strong>${firstName}</strong>:</p>
+                
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900 mb-4">${idea.titulo}</h1>
+                
+                <div class="prose max-w-none text-gray-700 text-left mb-6">
+                    <p>${idea.descricao ? idea.descricao.replace(/\n/g, '<br>') : '<i>Nenhuma descrição fornecida.</i>'}</p>
                 </div>
+
+                <span class="inline-block px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-200 rounded-full">
+                    Status: ${idea.status}
+                </span>
             `;
+
+            // Configura o botão do WhatsApp
+            const phoneNumber = "5511920322795"; // Número sem o '+'
+            const message = encodeURIComponent("quero registrar minhas ideiais");
+            ctaButton.href = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
+            ctaButton.classList.remove('hidden');
         }
 
         function renderError(message) {
-            ideaContainer.innerHTML = `<h1 class="text-2xl font-bold text-center text-red-500">${message}</h1>`;
+            ideaContainerContent.innerHTML = `<h1 class="text-2xl font-bold text-center text-red-500">${message}</h1>`;
         }
 
         // Inicia o processo ao carregar a página
