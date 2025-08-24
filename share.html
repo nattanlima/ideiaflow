@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ideia | IdeiaFlow</title>
+
+    <!-- Meta Tags para Compartilhamento (Open Graph) -->
+    <meta property="og:title" content="Uma Ideia do IdeiaFlow">
+    <meta property="og:description" content="Veja esta ideia de marketing organizada com o IdeiaFlow.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/nattanlima/ideiaflow/refs/heads/main/logozap.png">
+    <meta property="og:url" content="#">
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -89,6 +95,7 @@
             }
             
             renderIdea(idea);
+            updateMetaTags(idea);
         }
 
         function renderIdea(idea) {
@@ -117,6 +124,12 @@
             const message = encodeURIComponent("quero registrar minhas ideiais");
             ctaButton.href = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
             ctaButton.classList.remove('hidden');
+        }
+        
+        function updateMetaTags(idea) {
+            document.querySelector('meta[property="og:title"]').setAttribute('content', idea.titulo);
+            document.querySelector('meta[property="og:description"]').setAttribute('content', idea.descricao || 'Veja esta ideia de marketing organizada com o IdeiaFlow.');
+            document.querySelector('meta[property="og:url"]').setAttribute('content', window.location.href);
         }
 
         function renderError(message) {
