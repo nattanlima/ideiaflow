@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideia | IdeiaFlow</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Fundo Decorativo -->
+    <div class="fixed inset-0 -z-10 h-full w-full bg-white">
+        <div class="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
+    </div>
+
+    <main id="idea-container" class="w-full max-w-2xl p-8 bg-white/60 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl">
+        <!-- O conteúdo da ideia será inserido aqui -->
+        <div class="text-center">
+            <p>Carregando ideia...</p>
+        </div>
+    </main>
+
+    <script type="module">
+        // --- CONFIGURAÇÃO ---
+        const SUPABASE_URL = 'https://jqsusfxfabubionvjkso.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxc3VzZnhmYWJ1YmlvbnZqa3NvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDYxMDUsImV4cCI6MjA3MTYyMjEwNX0.jI2JEeMAiX1BK5JEufGoVv-yxdwbF402raSuWfkzDtg';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const ideaContainer = document.getElementById('idea-container');
+
+        // --- LÓGICA DA PÁGINA ---
+        async function fetchSharedIdea() {
+            // 1. Pega o ID da ideia da URL
+            const params = new URLSearchParams(window.location.search);
+            const ideaId = params.get('id');
+
+            if (!ideaId) {
+                renderError('Nenhuma ideia especificada.');
+                return;
+            }
+
+            // 2. Busca a ideia no Supabase
+            // A RLS que criamos permite esta consulta porque estamos buscando por um ID
+            // e a política permite a leitura se a ideia for pública.
+            const { data: idea, error } = await supabaseClient
+                .from('ideias')
+                .select('*')
+                .eq('id', ideaId)
+                .single();
+
+            if (error || !idea) {
+                renderError('Ideia não encontrada ou não é pública.');
+                return;
+            }
+            
+            // 3. Renderiza a ideia na tela
+            renderIdea(idea);
+        }
+
+        function renderIdea(idea) {
+            const date = new Date(idea.created_at).toLocaleDateString('pt-BR', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.title = `${idea.titulo} | IdeiaFlow`;
+            ideaContainer.innerHTML = `
+                <span class="inline-block px-3 py-1 text-xs font-semibold text-gray-700 bg-gray-200 rounded-full mb-4">
+                    ${idea.status}
+                </span>
+                <h1 class="text-4xl font-bold tracking-tight text-gray-900 mb-4">${idea.titulo}</h1>
+                <p class="text-sm text-gray-500 mb-6">Criada em ${date}</p>
+                <div class="prose max-w-none text-gray-700">
+                    <p>${idea.descricao.replace(/\n/g, '<br>')}</p>
+                </div>
+            `;
+        }
+
+        function renderError(message) {
+            ideaContainer.innerHTML = `<h1 class="text-2xl font-bold text-center text-red-500">${message}</h1>`;
+        }
+
+        // Inicia o processo ao carregar a página
+        fetchSharedIdea();
+    </script>
+</body>
+</html>
