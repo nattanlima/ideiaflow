@@ -18,214 +18,169 @@
     
     <style>
         :root {
-            --background-start-rgb: 243, 244, 246;
-            --background-end-rgb: 243, 244, 246;
+            --background-rgb: 243, 244, 246;
             --foreground-rgb: 17, 24, 39;
-            --card-background-rgb: 255, 255, 255;
-            --card-border-rgb: 229, 231, 235;
+            --card-bg-rgb: 255, 255, 255;
+            --subtle-border-rgb: 229, 231, 235;
+            --accent-rgb: 17, 24, 39;
         }
 
         html.dark {
-            --background-start-rgb: 17, 24, 39;
-            --background-end-rgb: 17, 24, 39;
-            --foreground-rgb: 243, 244, 246;
-            --card-background-rgb: 31, 41, 55;
-            --card-border-rgb: 55, 65, 81;
+            --background-rgb: 17, 24, 39;
+            --foreground-rgb: 229, 231, 235;
+            --card-bg-rgb: 31, 41, 55;
+            --subtle-border-rgb: 55, 65, 81;
+            --accent-rgb: 249, 250, 251;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: rgb(var(--background-start-rgb));
+            background-color: rgb(var(--background-rgb));
             color: rgb(var(--foreground-rgb));
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
+        .glass-card {
+            background: rgba(var(--card-bg-rgb), 0.6);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(var(--subtle-border-rgb), 0.2);
+        }
+
         .btn-loading { cursor: not-allowed; opacity: 0.7; }
         
-        /* Animações de Modal */
-        .modal-backdrop {
-            transition: opacity 0.3s ease-in-out;
-        }
-        .modal-content {
-            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
-        }
-        .modal-hidden .modal-backdrop {
-            opacity: 0;
-        }
-        .modal-hidden .modal-content {
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-        }
+        .modal-backdrop { transition: opacity 0.3s ease; }
+        .modal-content { transition: transform 0.3s ease, opacity 0.3s ease; }
+        .modal-hidden .modal-backdrop { opacity: 0; }
+        .modal-hidden .modal-content { opacity: 0; transform: translateY(20px) scale(0.95); }
+        
+        .active-tab { color: rgb(var(--accent-rgb)); }
+        .active-tab-bg { background-color: rgba(var(--accent-rgb), 0.1); }
     </style>
 </head>
 <body class="overscroll-none">
 
+    <!-- Fundo Decorativo -->
+    <div class="fixed inset-0 -z-10 h-full w-full bg-white dark:bg-gray-900">
+        <div class="absolute bottom-0 left-0 right-0 top-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_110%)]"></div>
+    </div>
+
     <!-- TELA DE LOGIN -->
     <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
-        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-lg">
+        <div class="w-full max-w-md p-8 space-y-8 glass-card rounded-3xl shadow-2xl">
             <div>
-                <h2 id="form-title" class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Acessar sua conta</h2>
+                <h2 id="form-title" class="mt-6 text-center text-3xl font-bold tracking-tight">Acessar sua conta</h2>
             </div>
             <form id="auth-form" class="mt-8 space-y-6">
-                <div class="rounded-md shadow-sm -space-y-px">
-                    <input id="phone" name="phone" type="tel" required class="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" placeholder="Telefone com código do país">
-                    <input id="password" name="password" type="password" required class="relative block w-full appearance-none rounded-b-md border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" placeholder="Senha (mínimo 6 caracteres)">
+                <div class="rounded-xl shadow-sm -space-y-px">
+                    <input id="phone" name="phone" type="tel" required class="relative block w-full appearance-none rounded-t-xl border-0 bg-gray-100 dark:bg-gray-800 px-4 py-3 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Telefone com código do país">
+                    <input id="password" name="password" type="password" required class="relative block w-full appearance-none rounded-b-xl border-0 bg-gray-100 dark:bg-gray-800 px-4 py-3 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Senha (mínimo 6 caracteres)">
                 </div>
-                <button type="submit" id="submit-button" class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"><span id="button-text">Entrar</span></button>
+                <button type="submit" id="submit-button" class="group relative flex w-full justify-center rounded-xl border border-transparent bg-gray-900 py-3 px-4 text-sm font-semibold text-white hover:bg-gray-800 dark:bg-gray-200 dark:text-gray-900 dark:hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:ring-offset-gray-800"><span id="button-text">Entrar</span></button>
             </form>
-            <div class="text-sm text-center"><a href="#" id="toggle-form" class="font-medium text-indigo-600 hover:text-indigo-500">Não tem uma conta? Cadastre-se</a></div>
+            <div class="text-sm text-center"><a href="#" id="toggle-form" class="font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">Não tem uma conta? Cadastre-se</a></div>
             <div id="message-box" class="text-center text-sm font-medium"></div>
         </div>
     </div>
 
     <!-- TELA DO APLICATIVO -->
     <div id="app-screen" class="hidden w-full h-screen flex flex-col">
-        <!-- Cabeçalho -->
-        <header class="p-4 flex justify-between items-center border-b" style="border-color: rgb(var(--card-border-rgb)); background-color: rgb(var(--card-background-rgb));">
-            <h1 class="text-xl font-bold text-indigo-600">IdeiaFlow</h1>
-            <button id="profile-button" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-indigo-600 font-bold"></button>
+        <header class="p-4 flex justify-between items-center glass-card">
+            <h1 class="text-xl font-bold">IdeiaFlow</h1>
+            <button id="profile-button" class="w-9 h-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center font-bold text-lg"></button>
         </header>
 
-        <!-- Conteúdo Principal -->
         <main id="kanban-content" class="flex-1 overflow-y-auto p-4 space-y-4">
-            <!-- Os cards serão inseridos aqui -->
+            <!-- Cards -->
         </main>
         
-        <!-- Botão Flutuante para Adicionar Ideia -->
-        <button id="add-idea-fab" class="fixed bottom-20 right-5 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-700 transition-transform duration-200 active:scale-90">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        <button id="add-idea-fab" class="fixed bottom-24 right-5 w-16 h-16 bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900 rounded-2xl shadow-lg flex items-center justify-center hover:bg-gray-800 transition-transform duration-200 active:scale-90">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
         </button>
 
-        <!-- Navegação Inferior -->
-        <nav class="grid grid-cols-4 gap-2 p-2 border-t" style="border-color: rgb(var(--card-border-rgb)); background-color: rgb(var(--card-background-rgb));">
-            <button class="nav-tab active-tab flex flex-col items-center p-2 rounded-lg text-indigo-600" data-status="A FAZER"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg><span class="text-xs font-medium">A Fazer</span></button>
-            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="EM ANDAMENTO"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-medium">Em Andamento</span></button>
-            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="CONCLUÍDA"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-medium">Concluída</span></button>
-            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="ARQUIVADA"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg><span class="text-xs font-medium">Arquivada</span></button>
+        <nav class="grid grid-cols-4 gap-2 p-2 m-4 rounded-2xl glass-card text-gray-500 dark:text-gray-400">
+            <button class="nav-tab active-tab flex flex-col items-center p-2 rounded-lg" data-status="A FAZER"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg><span class="text-xs font-semibold">A Fazer</span></button>
+            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="EM ANDAMENTO"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-semibold">Em Andamento</span></button>
+            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="CONCLUÍDA"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-semibold">Concluída</span></button>
+            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="ARQUIVADA"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg><span class="text-xs font-semibold">Arquivada</span></button>
         </nav>
     </div>
     
-    <!-- MODAL PARA CRIAR/EDITAR IDEIA -->
-    <div id="idea-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-hidden hidden">
-        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
-        <div class="modal-content w-full max-w-md p-6 rounded-2xl shadow-xl relative transform" style="background-color: rgb(var(--card-background-rgb));">
-            <h3 id="idea-modal-title" class="text-2xl font-bold mb-4">Nova Ideia</h3>
-            <form id="idea-form">
+    <!-- MODAIS -->
+    <div id="idea-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 modal-hidden hidden">
+        <div class="modal-backdrop fixed inset-0 bg-black/30"></div>
+        <div class="modal-content w-full max-w-md p-6 glass-card rounded-3xl shadow-xl relative transform">
+            <h3 id="idea-modal-title" class="text-2xl font-bold mb-6">Nova Ideia</h3>
+            <form id="idea-form" class="space-y-4">
                 <input type="hidden" id="idea-id">
-                <div class="mb-4">
+                <div>
                     <label for="idea-title" class="block text-sm font-medium mb-1">Título</label>
-                    <input type="text" id="idea-title" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" style="background-color: rgb(var(--background-start-rgb)); border-color: rgb(var(--card-border-rgb));">
+                    <input type="text" id="idea-title" required class="w-full p-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-gray-500">
                 </div>
-                <div class="mb-4">
+                <div>
                     <label for="idea-description" class="block text-sm font-medium mb-1">Descrição</label>
-                    <textarea id="idea-description" rows="4" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" style="background-color: rgb(var(--background-start-rgb)); border-color: rgb(var(--card-border-rgb));"></textarea>
+                    <textarea id="idea-description" rows="4" class="w-full p-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-gray-500"></textarea>
                 </div>
-                <div class="mb-6">
+                <div>
                     <label for="idea-status" class="block text-sm font-medium mb-1">Status</label>
-                    <select id="idea-status" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" style="background-color: rgb(var(--background-start-rgb)); border-color: rgb(var(--card-border-rgb));">
-                        <option>A FAZER</option>
-                        <option>EM ANDAMENTO</option>
-                        <option>CONCLUÍDA</option>
-                        <option>ARQUIVADA</option>
+                    <select id="idea-status" class="w-full p-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-gray-500">
+                        <option>A FAZER</option> <option>EM ANDAMENTO</option> <option>CONCLUÍDA</option> <option>ARQUIVADA</option>
                     </select>
                 </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="idea-modal-close" class="px-4 py-2 rounded-lg font-semibold">Cancelar</button>
-                    <button type="submit" id="idea-modal-save" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold">Salvar</button>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" id="idea-modal-close" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Cancelar</button>
+                    <button type="submit" id="idea-modal-save" class="px-5 py-2 bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900 rounded-xl font-semibold">Salvar</button>
                 </div>
             </form>
         </div>
     </div>
     
-    <!-- MODAL DE PERFIL -->
-    <div id="profile-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-hidden hidden">
-        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
-        <div class="modal-content w-full max-w-md p-6 rounded-2xl shadow-xl relative transform" style="background-color: rgb(var(--card-background-rgb));">
-            <h3 class="text-2xl font-bold mb-4">Meu Perfil</h3>
-            <form id="profile-form">
-                <div class="mb-4">
+    <div id="profile-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 modal-hidden hidden">
+        <div class="modal-backdrop fixed inset-0 bg-black/30"></div>
+        <div class="modal-content w-full max-w-md p-6 glass-card rounded-3xl shadow-xl relative transform">
+            <h3 class="text-2xl font-bold mb-6">Meu Perfil</h3>
+            <form id="profile-form" class="space-y-6">
+                <div>
                     <label for="profile-name" class="block text-sm font-medium mb-1">Nome</label>
-                    <input type="text" id="profile-name" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" style="background-color: rgb(var(--background-start-rgb)); border-color: rgb(var(--card-border-rgb));">
+                    <input type="text" id="profile-name" class="w-full p-3 border-0 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-gray-500">
                 </div>
-                <div class="mb-4">
+                <div>
                     <label class="block text-sm font-medium mb-1">Tema</label>
-                    <div class="flex items-center space-x-4">
-                        <button type="button" id="theme-light" class="p-2 rounded-lg border-2 border-indigo-500">Claro</button>
-                        <button type="button" id="theme-dark" class="p-2 rounded-lg border-2">Escuro</button>
+                    <div class="flex items-center space-x-4 p-1 bg-gray-200 dark:bg-gray-900 rounded-xl">
+                        <button type="button" id="theme-light" class="w-full p-2 rounded-lg font-semibold">Claro</button>
+                        <button type="button" id="theme-dark" class="w-full p-2 rounded-lg font-semibold">Escuro</button>
                     </div>
                 </div>
-                <div class="flex justify-between items-center mt-6">
-                    <button type="button" id="logout-button-modal" class="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold">Sair</button>
+                <div class="flex justify-between items-center pt-4">
+                    <button type="button" id="logout-button-modal" class="px-5 py-2 bg-red-500 text-white rounded-xl font-semibold">Sair</button>
                     <div>
-                        <button type="button" id="profile-modal-close" class="px-4 py-2 rounded-lg font-semibold">Fechar</button>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold">Salvar</button>
+                        <button type="button" id="profile-modal-close" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Fechar</button>
+                        <button type="submit" class="px-5 py-2 bg-gray-900 text-white dark:bg-gray-200 dark:text-gray-900 rounded-xl font-semibold">Salvar</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 
-
     <script type="module">
-        // =================================================================
-        // CONFIGURAÇÃO
-        // =================================================================
+        // --- CONFIGURAÇÃO ---
         const SUPABASE_URL = 'https://jqsusfxfabubionvjkso.supabase.co';
-        // CORREÇÃO: Chave de API corrigida
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxc3VzZnhmYWJ1YmlvbnZqa3NvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDYxMDUsImV4cCI6MjA3MTYyMjEwNX0.jI2JEeMAiX1BK5JEufGoVv-yxdwbF402raSuWfkzDtg';
-
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // =================================================================
-        // ESTADO GLOBAL
-        // =================================================================
-        let isLoginMode = true;
-        let allIdeas = [];
-        let currentUser = null;
-        let currentStatusFilter = 'A FAZER';
+        // --- ESTADO GLOBAL ---
+        let isLoginMode = true, allIdeas = [], currentUser = null, currentStatusFilter = 'A FAZER';
 
-        // =================================================================
-        // ELEMENTOS DO DOM
-        // =================================================================
-        const loginScreen = document.getElementById('login-screen');
-        const appScreen = document.getElementById('app-screen');
-        // Login
-        const authForm = document.getElementById('auth-form');
-        const phoneInput = document.getElementById('phone');
-        const passwordInput = document.getElementById('password');
-        const submitButton = document.getElementById('submit-button');
-        const buttonText = document.getElementById('button-text');
-        const messageBox = document.getElementById('message-box');
-        const toggleFormLink = document.getElementById('toggle-form');
-        const formTitle = document.getElementById('form-title');
-        // App
-        const profileButton = document.getElementById('profile-button');
-        const kanbanContent = document.getElementById('kanban-content');
-        const navTabs = document.querySelectorAll('.nav-tab');
-        const addIdeaFab = document.getElementById('add-idea-fab');
-        // Modal de Ideia
-        const ideaModal = document.getElementById('idea-modal');
-        const ideaModalTitle = document.getElementById('idea-modal-title');
-        const ideaForm = document.getElementById('idea-form');
-        const ideaIdInput = document.getElementById('idea-id');
-        const ideaTitleInput = document.getElementById('idea-title');
-        const ideaDescriptionInput = document.getElementById('idea-description');
-        const ideaStatusSelect = document.getElementById('idea-status');
-        const ideaModalClose = document.getElementById('idea-modal-close');
-        const ideaModalSave = document.getElementById('idea-modal-save');
-        // Modal de Perfil
-        const profileModal = document.getElementById('profile-modal');
-        const profileForm = document.getElementById('profile-form');
-        const profileNameInput = document.getElementById('profile-name');
-        const profileModalClose = document.getElementById('profile-modal-close');
-        const logoutButtonModal = document.getElementById('logout-button-modal');
-        const themeLightBtn = document.getElementById('theme-light');
-        const themeDarkBtn = document.getElementById('theme-dark');
+        // --- ELEMENTOS DO DOM ---
+        const loginScreen = document.getElementById('login-screen'), appScreen = document.getElementById('app-screen');
+        const authForm = document.getElementById('auth-form'), phoneInput = document.getElementById('phone'), passwordInput = document.getElementById('password'), submitButton = document.getElementById('submit-button'), buttonText = document.getElementById('button-text'), messageBox = document.getElementById('message-box'), toggleFormLink = document.getElementById('toggle-form'), formTitle = document.getElementById('form-title');
+        const profileButton = document.getElementById('profile-button'), kanbanContent = document.getElementById('kanban-content'), navTabs = document.querySelectorAll('.nav-tab'), addIdeaFab = document.getElementById('add-idea-fab');
+        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save');
+        const profileModal = document.getElementById('profile-modal'), profileForm = document.getElementById('profile-form'), profileNameInput = document.getElementById('profile-name'), profileModalClose = document.getElementById('profile-modal-close'), logoutButtonModal = document.getElementById('logout-button-modal'), themeLightBtn = document.getElementById('theme-light'), themeDarkBtn = document.getElementById('theme-dark');
 
-        // =================================================================
-        // LÓGICA DE AUTENTICAÇÃO
-        // =================================================================
-
+        // --- AUTENTICAÇÃO ---
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
             if (session) {
                 loginScreen.classList.add('hidden');
@@ -235,109 +190,67 @@
             } else {
                 loginScreen.classList.remove('hidden');
                 appScreen.classList.add('hidden');
-                currentUser = null;
-                allIdeas = [];
+                currentUser = null; allIdeas = [];
             }
         });
 
         authForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            setLoading(true);
-            const phone = phoneInput.value;
-            const password = passwordInput.value;
-            const email = `${phone}@example.com`;
-
+            e.preventDefault(); setLoading(true);
+            const phone = phoneInput.value, password = passwordInput.value, email = `${phone}@example.com`;
             try {
                 if (isLoginMode) {
                     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                 } else {
-                    const { data, error } = await supabaseClient.auth.signUp({
-                        email,
-                        password,
-                        options: { data: { phone: phone } }
-                    });
+                    const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { phone } } });
                     if (error) throw error;
                     if (!data.session) {
-                        showMessage('Cadastro realizado! Por favor, faça o login para continuar.', 'success');
-                        isLoginMode = true;
-                        updateFormUI();
+                        showMessage('Cadastro realizado! Por favor, faça o login.', 'success');
+                        isLoginMode = true; updateFormUI();
                     }
                 }
-            } catch (error) {
-                showMessage(`Erro: ${error.message}`, 'error');
-            } finally {
-                setLoading(false);
-            }
+            } catch (error) { showMessage(`Erro: ${error.message}`, 'error'); } 
+            finally { setLoading(false); }
         });
         
-        logoutButtonModal.addEventListener('click', async () => {
-            await supabaseClient.auth.signOut();
-        });
-
-        toggleFormLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            isLoginMode = !isLoginMode;
-            updateFormUI();
-        });
+        logoutButtonModal.addEventListener('click', () => supabaseClient.auth.signOut());
+        toggleFormLink.addEventListener('click', (e) => { e.preventDefault(); isLoginMode = !isLoginMode; updateFormUI(); });
         
         async function fetchUserData() {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (user) {
-                const { data, error } = await supabaseClient.from('usuarios').select('nome').eq('id', user.id).single();
-                if (data) {
-                    currentUser = { ...user, nome: data.nome };
-                    updateProfileUI();
-                } else {
-                    currentUser = user;
-                    updateProfileUI();
-                }
+                const { data } = await supabaseClient.from('usuarios').select('nome').eq('id', user.id).single();
+                currentUser = data ? { ...user, nome: data.nome } : user;
+                updateProfileUI();
             }
         }
 
-        // =================================================================
-        // LÓGICA DO APLICATIVO
-        // =================================================================
-        
+        // --- LÓGICA DO APP ---
         async function fetchAndRenderIdeas() {
-            const { data, error } = await supabaseClient.from('ideias').select('*').order('created_at', { ascending: false });
-            if (error) {
-                console.error('Erro ao buscar ideias:', error);
-                return;
-            }
-            allIdeas = data;
+            const { data } = await supabaseClient.from('ideias').select('*').order('created_at', { ascending: false });
+            allIdeas = data || [];
             renderIdeasByStatus();
         }
 
         function renderIdeasByStatus() {
             kanbanContent.innerHTML = '';
             const filteredIdeas = allIdeas.filter(idea => idea.status === currentStatusFilter);
-
             if (filteredIdeas.length === 0) {
-                kanbanContent.innerHTML = `<div class="text-center text-gray-500 mt-10">
-                    <p class="font-semibold">Nenhuma ideia aqui!</p>
-                    <p class="text-sm">Adicione uma nova ideia no botão +</p>
-                </div>`;
+                kanbanContent.innerHTML = `<div class="text-center text-gray-500 mt-10"><p class="font-semibold">Nenhuma ideia aqui!</p><p class="text-sm">Adicione uma nova ideia no botão +</p></div>`;
                 return;
             }
-
-            filteredIdeas.forEach(idea => {
-                const card = createIdeaCard(idea);
-                kanbanContent.appendChild(card);
-            });
+            filteredIdeas.forEach(idea => kanbanContent.appendChild(createIdeaCard(idea)));
         }
 
         function createIdeaCard(idea) {
             const card = document.createElement('div');
-            card.className = 'p-4 rounded-xl shadow-md cursor-pointer transition-transform duration-200 active:scale-95';
-            card.style.backgroundColor = 'rgb(var(--card-background-rgb))';
-            card.style.borderColor = 'rgb(var(--card-border-rgb))';
+            card.className = 'p-5 rounded-2xl shadow-lg cursor-pointer transition-transform duration-200 active:scale-95 glass-card';
             card.dataset.id = idea.id;
             const date = new Date(idea.created_at).toLocaleDateString('pt-BR');
             card.innerHTML = `
                 <h3 class="font-bold text-lg mb-2 truncate">${idea.titulo}</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 h-10 overflow-hidden text-ellipsis">${idea.descricao || ''}</p>
-                <div class="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
+                <div class="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 pt-2 border-t" style="border-color: rgba(var(--subtle-border-rgb), 0.5)">
                     <span>ID: ${idea.id}</span>
                     <span>${date}</span>
                 </div>
@@ -346,90 +259,45 @@
             return card;
         }
         
-        // Navegação por abas
         navTabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                navTabs.forEach(t => t.classList.remove('active-tab', 'text-indigo-600'));
-                tab.classList.add('active-tab', 'text-indigo-600');
+                navTabs.forEach(t => t.classList.remove('active-tab', 'active-tab-bg'));
+                tab.classList.add('active-tab', 'active-tab-bg');
                 currentStatusFilter = tab.dataset.status;
                 renderIdeasByStatus();
             });
         });
 
-        // =================================================================
-        // LÓGICA DOS MODAIS
-        // =================================================================
+        // --- LÓGICA DOS MODAIS ---
+        function openModal(modal) { modal.classList.remove('hidden'); setTimeout(() => modal.classList.remove('modal-hidden'), 10); }
+        function closeModal(modal) { modal.classList.add('modal-hidden'); setTimeout(() => modal.classList.add('hidden'), 300); }
 
-        // Modal de Ideia
         function openIdeaModal(idea = null) {
             ideaForm.reset();
-            if (idea) {
-                ideaModalTitle.textContent = 'Editar Ideia';
-                ideaIdInput.value = idea.id;
-                ideaTitleInput.value = idea.titulo;
-                ideaDescriptionInput.value = idea.descricao;
-                ideaStatusSelect.value = idea.status;
-            } else {
-                ideaModalTitle.textContent = 'Nova Ideia';
-                ideaIdInput.value = '';
-                ideaStatusSelect.value = currentStatusFilter;
-            }
-            ideaModal.classList.remove('hidden');
-            setTimeout(() => ideaModal.classList.remove('modal-hidden'), 10);
+            ideaModalTitle.textContent = idea ? 'Editar Ideia' : 'Nova Ideia';
+            ideaIdInput.value = idea ? idea.id : '';
+            ideaTitleInput.value = idea ? idea.titulo : '';
+            ideaDescriptionInput.value = idea ? idea.descricao : '';
+            ideaStatusSelect.value = idea ? idea.status : currentStatusFilter;
+            openModal(ideaModal);
         }
 
-        function closeIdeaModal() {
-            ideaModal.classList.add('modal-hidden');
-            setTimeout(() => ideaModal.classList.add('hidden'), 300);
-        }
-        
         addIdeaFab.addEventListener('click', () => openIdeaModal());
-        ideaModalClose.addEventListener('click', closeIdeaModal);
-        ideaModal.querySelector('.modal-backdrop').addEventListener('click', closeIdeaModal);
+        ideaModalClose.addEventListener('click', () => closeModal(ideaModal));
+        ideaModal.querySelector('.modal-backdrop').addEventListener('click', () => closeModal(ideaModal));
         
         ideaForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            ideaModalSave.classList.add('btn-loading');
-            ideaModalSave.disabled = true;
-
-            const id = ideaIdInput.value;
+            e.preventDefault(); ideaModalSave.classList.add('btn-loading'); ideaModalSave.disabled = true;
             const ideaData = {
-                titulo: ideaTitleInput.value,
-                descricao: ideaDescriptionInput.value,
-                status: ideaStatusSelect.value,
-                user_id: currentUser.id // CORREÇÃO: Adiciona o ID do usuário
+                titulo: ideaTitleInput.value, descricao: ideaDescriptionInput.value,
+                status: ideaStatusSelect.value, user_id: currentUser.id
             };
-
-            let error;
-            if (id) { // Atualizar
-                const { error: updateError } = await supabaseClient.from('ideias').update(ideaData).eq('id', id);
-                error = updateError;
-            } else { // Criar
-                const { error: insertError } = await supabaseClient.from('ideias').insert([ideaData]);
-                error = insertError;
-            }
-
-            ideaModalSave.classList.remove('btn-loading');
-            ideaModalSave.disabled = false;
-
-            if (error) {
-                alert(`Erro: ${error.message}`);
-            } else {
-                closeIdeaModal();
-                await fetchAndRenderIdeas();
-            }
+            const id = ideaIdInput.value;
+            const { error } = id ? await supabaseClient.from('ideias').update(ideaData).eq('id', id) : await supabaseClient.from('ideias').insert([ideaData]);
+            ideaModalSave.classList.remove('btn-loading'); ideaModalSave.disabled = false;
+            if (error) { alert(`Erro: ${error.message}`); } 
+            else { closeModal(ideaModal); await fetchAndRenderIdeas(); }
         });
-
-        // Modal de Perfil
-        function openProfileModal() {
-            profileModal.classList.remove('hidden');
-            setTimeout(() => profileModal.classList.remove('modal-hidden'), 10);
-        }
-        
-        function closeProfileModal() {
-            profileModal.classList.add('modal-hidden');
-            setTimeout(() => profileModal.classList.add('hidden'), 300);
-        }
 
         function updateProfileUI() {
             if (currentUser) {
@@ -438,74 +306,47 @@
             }
         }
 
-        profileButton.addEventListener('click', openProfileModal);
-        profileModalClose.addEventListener('click', closeProfileModal);
-        profileModal.querySelector('.modal-backdrop').addEventListener('click', closeProfileModal);
+        profileButton.addEventListener('click', () => openModal(profileModal));
+        profileModalClose.addEventListener('click', () => closeModal(profileModal));
+        profileModal.querySelector('.modal-backdrop').addEventListener('click', () => closeModal(profileModal));
 
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const newName = profileNameInput.value;
-            const { error } = await supabaseClient.from('usuarios').update({ nome: newName }).eq('id', currentUser.id);
-            if (error) {
-                alert(`Erro ao atualizar nome: ${error.message}`);
-            } else {
-                await fetchUserData();
-                closeProfileModal();
-            }
+            const { error } = await supabaseClient.from('usuarios').update({ nome: profileNameInput.value }).eq('id', currentUser.id);
+            if (error) { alert(`Erro: ${error.message}`); } 
+            else { await fetchUserData(); closeModal(profileModal); }
         });
         
-        // Lógica de Tema
         function applyTheme(theme) {
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                themeDarkBtn.classList.add('border-indigo-500');
-                themeLightBtn.classList.remove('border-indigo-500');
-            } else {
-                document.documentElement.classList.remove('dark');
-                themeLightBtn.classList.add('border-indigo-500');
-                themeDarkBtn.classList.remove('border-indigo-500');
-            }
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+            themeDarkBtn.classList.toggle('bg-gray-800', theme === 'dark');
+            themeDarkBtn.classList.toggle('text-white', theme === 'dark');
+            themeLightBtn.classList.toggle('bg-white', theme === 'light');
+            themeLightBtn.classList.toggle('text-black', theme === 'light');
             localStorage.setItem('theme', theme);
         }
 
         themeLightBtn.addEventListener('click', () => applyTheme('light'));
         themeDarkBtn.addEventListener('click', () => applyTheme('dark'));
-        
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        applyTheme(savedTheme);
+        applyTheme(localStorage.getItem('theme') || 'light');
 
-        // =================================================================
-        // FUNÇÕES AUXILIARES DE LOGIN UI
-        // =================================================================
-        
+        // --- FUNÇÕES AUXILIARES DE UI ---
         function updateFormUI() {
-            if (isLoginMode) {
-                formTitle.textContent = 'Acessar sua conta';
-                buttonText.textContent = 'Entrar';
-                toggleFormLink.textContent = 'Não tem uma conta? Cadastre-se';
-            } else {
-                formTitle.textContent = 'Crie sua conta';
-                buttonText.textContent = 'Cadastrar';
-                toggleFormLink.textContent = 'Já tem uma conta? Faça login';
-            }
+            formTitle.textContent = isLoginMode ? 'Acessar sua conta' : 'Crie sua conta';
+            buttonText.textContent = isLoginMode ? 'Entrar' : 'Cadastrar';
+            toggleFormLink.textContent = isLoginMode ? 'Não tem uma conta? Cadastre-se' : 'Já tem uma conta? Faça login';
             messageBox.textContent = '';
         }
 
         function setLoading(isLoading) {
             submitButton.disabled = isLoading;
-            if (isLoading) {
-                submitButton.classList.add('btn-loading');
-                buttonText.textContent = 'Aguarde...';
-            } else {
-                updateFormUI();
-            }
+            buttonText.textContent = isLoading ? 'Aguarde...' : (isLoginMode ? 'Entrar' : 'Cadastrar');
+            submitButton.classList.toggle('btn-loading', isLoading);
         }
 
         function showMessage(message, type = 'info') {
             messageBox.textContent = message;
-            messageBox.className = type === 'error' ? 'text-center text-sm font-medium text-red-600' : 
-                                  type === 'success' ? 'text-center text-sm font-medium text-green-600' : 
-                                  'text-center text-sm font-medium text-gray-600';
+            messageBox.className = `text-center text-sm font-medium ${type === 'error' ? 'text-red-500' : 'text-green-500'}`;
         }
     </script>
 </body>
