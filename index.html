@@ -62,7 +62,8 @@
     <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
         <div class="w-full max-w-md p-8 space-y-8 glass-card rounded-3xl shadow-2xl">
             <div>
-                <img class="mx-auto h-12 w-auto" src="https://raw.githubusercontent.com/nattanlima/ideiaflow/refs/heads/main/logo.png" alt="Logotipo IdeiaFlow">
+                <!-- CORREÇÃO: Aumentado o tamanho da logo de h-12 para h-16 -->
+                <img class="mx-auto h-16 w-auto" src="https://raw.githubusercontent.com/nattanlima/ideiaflow/refs/heads/main/logo.png" alt="Logotipo IdeiaFlow">
                 <h2 id="form-title" class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Acessar sua conta</h2>
             </div>
             <form id="auth-form" class="mt-8 space-y-6">
@@ -101,7 +102,8 @@
     </div>
     
     <!-- MODAIS -->
-    <div id="idea-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 modal-hidden hidden">
+    <!-- CORREÇÃO: Removido 'items-end' e 'sm:items-center' para centralizar sempre -->
+    <div id="idea-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-hidden hidden">
         <div class="modal-backdrop fixed inset-0 bg-black/30"></div>
         <div class="modal-content w-full max-w-md p-6 glass-card rounded-3xl shadow-xl relative transform">
             <h3 id="idea-modal-title" class="text-2xl font-bold mb-6">Nova Ideia</h3>
@@ -123,10 +125,14 @@
                     </select>
                 </div>
                 <div class="flex justify-between items-center pt-4">
-                    <button type="button" id="share-button" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800 flex items-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path></svg>
-                        <span>Compartilhar</span>
-                    </button>
+                    <div id="share-options" class="flex items-center space-x-2">
+                        <button type="button" id="copy-link-button" title="Copiar Link" class="p-3 rounded-xl font-semibold bg-gray-200 text-gray-800 flex items-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12s-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.368a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path></svg>
+                        </button>
+                        <button type="button" id="whatsapp-share-button" title="Compartilhar no WhatsApp" class="p-3 rounded-xl font-semibold bg-green-500 text-white flex items-center">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.487 5.235 3.487 8.413 0 6.557-5.338 11.892-11.894 11.892-1.99 0-3.903-.52-5.687-1.475L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.886-.001 2.269.655 4.398 1.905 6.344l-.344 1.249 1.256-.327zM12 4.098c-4.327 0-7.829 3.5-7.832 7.828.001 1.453.386 2.828 1.12 4.026l.133.238-.832 2.417 2.464-.814.251.146c1.137.647 2.438 1.002 3.82 1.002 4.328 0 7.83-3.504 7.832-7.833.003-4.326-3.498-7.828-7.828-7.828zm.001 1.432c3.556 0 6.448 2.893 6.451 6.45.002 3.555-2.889 6.447-6.448 6.447-1.18 0-2.273-.312-3.22-.847l-.24-.124-.666 1.933 1.959-.645-.143-.244c-.945-1.61-1.427-3.442-1.426-5.358.002-3.555 2.894-6.448 6.448-6.448zm-2.325 3.301c-.126-.27-.262-.273-.388-.275-.113 0-.244-.003-.375.123-.131.126-.498.488-.498 1.195 0 .706.51 1.39.581 1.494.07.102 1.004 1.625 2.457 2.177.346.129.616.206.83.262.368.092.694.077.943-.059.297-.16.903-.438 1.028-.865.127-.426.127-.785.088-.864-.039-.079-.131-.126-.27-.205-.139-.079-.832-.411-1.004-.46-.172-.048-.297-.079-.423.079-.126.158-.498.62-.613.737-.113.116-.225.129-.423.048-.197-.08-.832-.308-1.589-.985-.59-.527-.985-1.176-1.103-1.373-.116-.197-.012-.308.068-.406.071-.087.158-.209.238-.314s.102-.172.158-.297c.056-.126.028-.238-.012-.315-.04-.079-.423-1.004-.581-1.374z"></path></svg>
+                        </button>
+                    </div>
                     <div class="flex space-x-3">
                         <button type="button" id="idea-modal-close" class="px-5 py-2 rounded-xl font-semibold bg-gray-200 text-gray-800">Cancelar</button>
                         <button type="submit" id="idea-modal-save" class="px-5 py-2 bg-gray-900 text-white rounded-xl font-semibold">Salvar</button>
@@ -136,7 +142,8 @@
         </div>
     </div>
     
-    <div id="profile-modal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 modal-hidden hidden">
+    <!-- CORREÇÃO: Removido 'items-end' e 'sm:items-center' para centralizar sempre -->
+    <div id="profile-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-hidden hidden">
         <div class="modal-backdrop fixed inset-0 bg-black/30"></div>
         <div class="modal-content w-full max-w-md p-6 glass-card rounded-3xl shadow-xl relative transform">
             <h3 class="text-2xl font-bold mb-6">Meu Perfil</h3>
@@ -170,7 +177,7 @@
         const loginScreen = document.getElementById('login-screen'), appScreen = document.getElementById('app-screen');
         const authForm = document.getElementById('auth-form'), phoneInput = document.getElementById('phone'), passwordInput = document.getElementById('password'), submitButton = document.getElementById('submit-button'), buttonText = document.getElementById('button-text'), messageBox = document.getElementById('message-box'), toggleFormLink = document.getElementById('toggle-form'), formTitle = document.getElementById('form-title');
         const profileButton = document.getElementById('profile-button'), kanbanContent = document.getElementById('kanban-content'), navTabs = document.querySelectorAll('.nav-tab'), addIdeaFab = document.getElementById('add-idea-fab');
-        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareButton = document.getElementById('share-button');
+        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareOptions = document.getElementById('share-options'), copyLinkButton = document.getElementById('copy-link-button'), whatsappShareButton = document.getElementById('whatsapp-share-button');
         const profileModal = document.getElementById('profile-modal'), profileForm = document.getElementById('profile-form'), profileNameInput = document.getElementById('profile-name'), profileModalClose = document.getElementById('profile-modal-close'), logoutButtonModal = document.getElementById('logout-button-modal');
 
         // --- AUTENTICAÇÃO ---
@@ -272,7 +279,7 @@
             ideaTitleInput.value = idea ? idea.titulo : '';
             ideaDescriptionInput.value = idea ? idea.descricao : '';
             ideaStatusSelect.value = idea ? idea.status : currentStatusFilter;
-            shareButton.style.display = idea ? 'flex' : 'none'; // Mostra o botão de compartilhar apenas na edição
+            shareOptions.style.display = idea ? 'flex' : 'none';
             openModal(ideaModal);
         }
 
@@ -293,26 +300,29 @@
             else { closeModal(ideaModal); await fetchAndRenderIdeas(); }
         });
 
-        shareButton.addEventListener('click', async () => {
+        copyLinkButton.addEventListener('click', async () => {
             const id = ideaIdInput.value;
             if (!id) return;
-
-            // 1. Torna a ideia pública
             const { error } = await supabaseClient.from('ideias').update({ is_public: true }).eq('id', id);
-            if (error) {
-                alert('Erro ao compartilhar ideia.');
-                return;
-            }
-
-            // 2. Cria e copia o link
+            if (error) { alert('Erro ao compartilhar ideia.'); return; }
             const shareUrl = `${window.location.origin}/share.html?id=${id}`;
+            const originalTitle = copyLinkButton.title;
             navigator.clipboard.writeText(shareUrl).then(() => {
-                const originalText = shareButton.querySelector('span').textContent;
-                shareButton.querySelector('span').textContent = 'Link Copiado!';
-                setTimeout(() => {
-                    shareButton.querySelector('span').textContent = originalText;
-                }, 2000);
+                copyLinkButton.title = 'Link Copiado!';
+                setTimeout(() => { copyLinkButton.title = originalTitle; }, 2000);
             });
+        });
+        
+        whatsappShareButton.addEventListener('click', async () => {
+            const id = ideaIdInput.value;
+            if (!id) return;
+            const { error } = await supabaseClient.from('ideias').update({ is_public: true }).eq('id', id);
+            if (error) { alert('Erro ao preparar compartilhamento.'); return; }
+            const shareUrl = `${window.location.origin}/share.html?id=${id}`;
+            const text = `Estou compartilhando com você minhas ideias salvas no IdeiaFlow! ${shareUrl}`;
+            const encodedText = encodeURIComponent(text);
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
+            window.open(whatsappUrl, '_blank');
         });
 
         function updateProfileUI() {
