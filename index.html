@@ -62,7 +62,6 @@
     <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
         <div class="w-full max-w-md p-8 space-y-8 glass-card rounded-3xl shadow-2xl">
             <div>
-                <!-- CORREÇÃO: Aumentado o tamanho da logo de h-12 para h-16 -->
                 <img class="mx-auto h-16 w-auto" src="https://raw.githubusercontent.com/nattanlima/ideiaflow/refs/heads/main/logo.png" alt="Logotipo IdeiaFlow">
                 <h2 id="form-title" class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Acessar sua conta</h2>
             </div>
@@ -102,7 +101,6 @@
     </div>
     
     <!-- MODAIS -->
-    <!-- CORREÇÃO: Removido 'items-end' e 'sm:items-center' para centralizar sempre -->
     <div id="idea-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-hidden hidden">
         <div class="modal-backdrop fixed inset-0 bg-black/30"></div>
         <div class="modal-content w-full max-w-md p-6 glass-card rounded-3xl shadow-xl relative transform">
@@ -142,7 +140,6 @@
         </div>
     </div>
     
-    <!-- CORREÇÃO: Removido 'items-end' e 'sm:items-center' para centralizar sempre -->
     <div id="profile-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-hidden hidden">
         <div class="modal-backdrop fixed inset-0 bg-black/30"></div>
         <div class="modal-content w-full max-w-md p-6 glass-card rounded-3xl shadow-xl relative transform">
@@ -319,7 +316,7 @@
             const { error } = await supabaseClient.from('ideias').update({ is_public: true }).eq('id', id);
             if (error) { alert('Erro ao preparar compartilhamento.'); return; }
             const shareUrl = `${window.location.origin}/share.html?id=${id}`;
-            const text = `Estou compartilhando com você minhas ideias salvas no IdeiaFlow! ${shareUrl}`;
+            const text = `Ei! ✨\n\nDá uma olhada nesta ideia que organizei no IdeiaFlow:\n\n${shareUrl}\n\nÉ uma ferramenta que estou usando para salvar e organizar minhas ideias de marketing. Achei que você ia gostar! 😉`;
             const encodedText = encodeURIComponent(text);
             const whatsappUrl = `https://api.whatsapp.com/send?text=${encodedText}`;
             window.open(whatsappUrl, '_blank');
