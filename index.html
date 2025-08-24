@@ -182,34 +182,49 @@
         const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareOptions = document.getElementById('share-options'), copyLinkButton = document.getElementById('copy-link-button'), whatsappShareButton = document.getElementById('whatsapp-share-button');
         const profileModal = document.getElementById('profile-modal'), profileForm = document.getElementById('profile-form'), profileNameInput = document.getElementById('profile-name'), profileModalClose = document.getElementById('profile-modal-close'), logoutButtonModal = document.getElementById('logout-button-modal');
 
-        // --- AUTENTICAÇÃO ---
-        supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            try {
-                if (session) {
-                    loginScreen.classList.add('hidden');
-                    appScreen.classList.add('hidden');
-                    loadingScreen.classList.remove('hidden');
+        // --- LÓGICA DE INICIALIZAÇÃO E AUTENTICAÇÃO ---
+        
+        // Função para mostrar a tela correta
+        function showScreen(screenName) {
+            loginScreen.classList.add('hidden');
+            appScreen.classList.add('hidden');
+            loadingScreen.classList.add('hidden');
+            document.getElementById(`${screenName}-screen`).classList.remove('hidden');
+        }
 
-                    // CORREÇÃO: Encadeia as promessas para garantir a ordem
-                    await fetchUserData();
-                    await fetchAndRenderIdeas();
-                    
-                    loadingScreen.classList.add('hidden');
-                    appScreen.classList.remove('hidden');
-                } else {
-                    loginScreen.classList.remove('hidden');
-                    appScreen.classList.add('hidden');
-                    loadingScreen.classList.add('hidden');
-                    currentUser = null; allIdeas = [];
+        // Função principal para carregar dados do app
+        async function loadAppData() {
+            await fetchUserData();
+            await fetchAndRenderIdeas();
+        }
+
+        // Listener principal de autenticação
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'INITIAL_SESSION' && session) {
+                showScreen('loading');
+                try {
+                    await loadAppData();
+                    showScreen('app');
+                } catch (error) {
+                    console.error("Erro ao inicializar o app:", error);
+                    await supabaseClient.auth.signOut();
+                    showMessage("Sessão expirada. Por favor, faça o login novamente.", "error");
+                    showScreen('login');
                 }
-            } catch (error) {
-                console.error("Erro ao inicializar o app:", error);
-                loadingScreen.classList.add('hidden');
-                appScreen.classList.add('hidden');
-                loginScreen.classList.remove('hidden');
-                showMessage("Não foi possível carregar seus dados. Tente fazer o login novamente.", "error");
-                await supabaseClient.auth.signOut();
+            } else if (event === 'SIGNED_IN') {
+                showScreen('loading');
+                await loadAppData();
+                showScreen('app');
+            } else if (event === 'SIGNED_OUT') {
+                currentUser = null;
+                allIdeas = [];
+                showScreen('login');
             }
+        });
+        
+        // Inicializa a UI na primeira carga da página
+        document.addEventListener('DOMContentLoaded', () => {
+             showScreen('login'); // Começa mostrando o login por padrão
         });
 
         authForm.addEventListener('submit', async (e) => {
