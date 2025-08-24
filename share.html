@@ -6,8 +6,8 @@
     <title>Ideia | IdeiaFlow</title>
 
     <!-- Meta Tags para Compartilhamento (Open Graph) -->
-    <meta property="og:title" content="Uma Ideia do IdeiaFlow">
-    <meta property="og:description" content="Veja esta ideia de marketing organizada com o IdeiaFlow.">
+    <meta property="og:title" content="Uma Ideia Brilhante do IdeiaFlow!">
+    <meta property="og:description" content="Veja esta ideia de marketing que foi organizada e compartilhada através do IdeiaFlow.">
     <meta property="og:image" content="https://raw.githubusercontent.com/nattanlima/ideiaflow/refs/heads/main/logozap.png">
     <meta property="og:url" content="#">
     
@@ -79,14 +79,9 @@
                 return;
             }
 
-            // Busca a ideia e o nome do usuário em uma única consulta
+            // Chama a função segura 'get_public_idea'
             const { data: idea, error } = await supabaseClient
-                .from('ideias')
-                .select(`
-                    *,
-                    usuarios ( nome )
-                `)
-                .eq('id', ideaId)
+                .rpc('get_public_idea', { idea_id: ideaId })
                 .single();
 
             if (error || !idea) {
@@ -99,7 +94,7 @@
         }
 
         function renderIdea(idea) {
-            const userName = idea.usuarios ? idea.usuarios.nome || 'Alguém' : 'Alguém';
+            const userName = idea.user_name || 'Alguém';
             const firstName = userName.split(' ')[0]; // Pega apenas o primeiro nome
 
             document.title = `${idea.titulo} | IdeiaFlow`;
