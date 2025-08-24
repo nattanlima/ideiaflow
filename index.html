@@ -184,21 +184,30 @@
 
         // --- AUTENTICAÇÃO ---
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (session) {
-                loginScreen.classList.add('hidden');
-                appScreen.classList.add('hidden');
-                loadingScreen.classList.remove('hidden');
+            try {
+                if (session) {
+                    loginScreen.classList.add('hidden');
+                    appScreen.classList.add('hidden');
+                    loadingScreen.classList.remove('hidden');
 
-                await fetchUserData();
-                await fetchAndRenderIdeas();
-                
+                    await fetchUserData();
+                    await fetchAndRenderIdeas();
+                    
+                    loadingScreen.classList.add('hidden');
+                    appScreen.classList.remove('hidden');
+                } else {
+                    loginScreen.classList.remove('hidden');
+                    appScreen.classList.add('hidden');
+                    loadingScreen.classList.add('hidden');
+                    currentUser = null; allIdeas = [];
+                }
+            } catch (error) {
+                console.error("Erro ao carregar dados do usuário:", error);
                 loadingScreen.classList.add('hidden');
-                appScreen.classList.remove('hidden');
-            } else {
-                loginScreen.classList.remove('hidden');
                 appScreen.classList.add('hidden');
-                loadingScreen.classList.add('hidden');
-                currentUser = null; allIdeas = [];
+                loginScreen.classList.remove('hidden');
+                showMessage("Não foi possível carregar seus dados. Tente fazer o login novamente.", "error");
+                await supabaseClient.auth.signOut();
             }
         });
 
@@ -225,9 +234,11 @@
         toggleFormLink.addEventListener('click', (e) => { e.preventDefault(); isLoginMode = !isLoginMode; updateFormUI(); });
         
         async function fetchUserData() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
+            const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+            if (userError) throw userError;
             if (user) {
-                const { data } = await supabaseClient.from('usuarios').select('nome').eq('id', user.id).single();
+                const { data, error } = await supabaseClient.from('usuarios').select('nome').eq('id', user.id).maybeSingle();
+                if (error) throw error;
                 currentUser = data ? { ...user, nome: data.nome } : user;
                 updateProfileUI();
             }
@@ -235,7 +246,8 @@
 
         // --- LÓGICA DO APP ---
         async function fetchAndRenderIdeas() {
-            const { data } = await supabaseClient.from('ideias').select('*').order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('ideias').select('*').order('created_at', { ascending: false });
+            if (error) throw error;
             allIdeas = data || [];
             renderIdeasByStatus();
         }
