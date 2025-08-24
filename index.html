@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Ideias | IdeiaFlow</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        :root {
+            --background-start-rgb: 243, 244, 246;
+            --background-end-rgb: 243, 244, 246;
+            --foreground-rgb: 17, 24, 39;
+            --card-background-rgb: 255, 255, 255;
+            --card-border-rgb: 229, 231, 235;
+        }
+
+        html.dark {
+            --background-start-rgb: 17, 24, 39;
+            --background-end-rgb: 17, 24, 39;
+            --foreground-rgb: 243, 244, 246;
+            --card-background-rgb: 31, 41, 55;
+            --card-border-rgb: 55, 65, 81;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: rgb(var(--background-start-rgb));
+            color: rgb(var(--foreground-rgb));
+        }
+        
+        .btn-loading { cursor: not-allowed; opacity: 0.7; }
+        
+        /* Animações de Modal */
+        .modal-backdrop {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        .modal-hidden .modal-backdrop {
+            opacity: 0;
+        }
+        .modal-hidden .modal-content {
+            opacity: 0;
+            transform: translateY(20px) scale(0.95);
+        }
+    </style>
+</head>
+<body class="overscroll-none">
+
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" class="flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-2xl shadow-lg">
+            <div>
+                <h2 id="form-title" class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Acessar sua conta</h2>
+            </div>
+            <form id="auth-form" class="mt-8 space-y-6">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <input id="phone" name="phone" type="tel" required class="relative block w-full appearance-none rounded-t-md border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" placeholder="Telefone com código do país">
+                    <input id="password" name="password" type="password" required class="relative block w-full appearance-none rounded-b-md border border-gray-300 px-3 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" placeholder="Senha (mínimo 6 caracteres)">
+                </div>
+                <button type="submit" id="submit-button" class="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-3 px-4 text-sm font-semibold text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"><span id="button-text">Entrar</span></button>
+            </form>
+            <div class="text-sm text-center"><a href="#" id="toggle-form" class="font-medium text-indigo-600 hover:text-indigo-500">Não tem uma conta? Cadastre-se</a></div>
+            <div id="message-box" class="text-center text-sm font-medium"></div>
+        </div>
+    </div>
+
+    <!-- TELA DO APLICATIVO -->
+    <div id="app-screen" class="hidden w-full h-screen flex flex-col">
+        <!-- Cabeçalho -->
+        <header class="p-4 flex justify-between items-center border-b" style="border-color: rgb(var(--card-border-rgb)); background-color: rgb(var(--card-background-rgb));">
+            <h1 class="text-xl font-bold text-indigo-600">IdeiaFlow</h1>
+            <button id="profile-button" class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-indigo-600 font-bold"></button>
+        </header>
+
+        <!-- Conteúdo Principal -->
+        <main id="kanban-content" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- Os cards serão inseridos aqui -->
+        </main>
+        
+        <!-- Botão Flutuante para Adicionar Ideia -->
+        <button id="add-idea-fab" class="fixed bottom-20 right-5 w-14 h-14 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-700 transition-transform duration-200 active:scale-90">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        </button>
+
+        <!-- Navegação Inferior -->
+        <nav class="grid grid-cols-4 gap-2 p-2 border-t" style="border-color: rgb(var(--card-border-rgb)); background-color: rgb(var(--card-background-rgb));">
+            <button class="nav-tab active-tab flex flex-col items-center p-2 rounded-lg text-indigo-600" data-status="A FAZER"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg><span class="text-xs font-medium">A Fazer</span></button>
+            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="EM ANDAMENTO"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-medium">Em Andamento</span></button>
+            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="CONCLUÍDA"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span class="text-xs font-medium">Concluída</span></button>
+            <button class="nav-tab flex flex-col items-center p-2 rounded-lg" data-status="ARQUIVADA"><svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg><span class="text-xs font-medium">Arquivada</span></button>
+        </nav>
+    </div>
+    
+    <!-- MODAL PARA CRIAR/EDITAR IDEIA -->
+    <div id="idea-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-hidden hidden">
+        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-content w-full max-w-md p-6 rounded-2xl shadow-xl relative transform" style="background-color: rgb(var(--card-background-rgb));">
+            <h3 id="idea-modal-title" class="text-2xl font-bold mb-4">Nova Ideia</h3>
+            <form id="idea-form">
+                <input type="hidden" id="idea-id">
+                <div class="mb-4">
+                    <label for="idea-title" class="block text-sm font-medium mb-1">Título</label>
+                    <input type="text" id="idea-title" required class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" style="background-color: rgb(var(--background-start-rgb)); border-color: rgb(var(--card-border-rgb));">
+                </div>
+                <div class="mb-4">
+                    <label for="idea-description" class="block text-sm font-medium mb-1">Descrição</label>
+                    <textarea id="idea-description" rows="4" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" style="background-color: rgb(var(--background-start-rgb)); border-color: rgb(var(--card-border-rgb));"></textarea>
+                </div>
+                <div class="mb-6">
+                    <label for="idea-status" class="block text-sm font-medium mb-1">Status</label>
+                    <select id="idea-status" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" style="background-color: rgb(var(--background-start-rgb)); border-color: rgb(var(--card-border-rgb));">
+                        <option>A FAZER</option>
+                        <option>EM ANDAMENTO</option>
+                        <option>CONCLUÍDA</option>
+                        <option>ARQUIVADA</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" id="idea-modal-close" class="px-4 py-2 rounded-lg font-semibold">Cancelar</button>
+                    <button type="submit" id="idea-modal-save" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- MODAL DE PERFIL -->
+    <div id="profile-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-hidden hidden">
+        <div class="modal-backdrop fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="modal-content w-full max-w-md p-6 rounded-2xl shadow-xl relative transform" style="background-color: rgb(var(--card-background-rgb));">
+            <h3 class="text-2xl font-bold mb-4">Meu Perfil</h3>
+            <form id="profile-form">
+                <div class="mb-4">
+                    <label for="profile-name" class="block text-sm font-medium mb-1">Nome</label>
+                    <input type="text" id="profile-name" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" style="background-color: rgb(var(--background-start-rgb)); border-color: rgb(var(--card-border-rgb));">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium mb-1">Tema</label>
+                    <div class="flex items-center space-x-4">
+                        <button type="button" id="theme-light" class="p-2 rounded-lg border-2 border-indigo-500">Claro</button>
+                        <button type="button" id="theme-dark" class="p-2 rounded-lg border-2">Escuro</button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mt-6">
+                    <button type="button" id="logout-button-modal" class="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold">Sair</button>
+                    <div>
+                        <button type="button" id="profile-modal-close" class="px-4 py-2 rounded-lg font-semibold">Fechar</button>
+                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold">Salvar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // =================================================================
+        // CONFIGURAÇÃO
+        // =================================================================
+        const SUPABASE_URL = 'https://jqsusfxfabubionvjkso.supabase.co';
+        // CORREÇÃO: Chave de API corrigida
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxc3VzZnhmYWJ1YmlvbnZqa3NvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDYxMDUsImV4cCI6MjA3MTYyMjEwNX0.jI2JEeMAiX1BK5JEufGoVv-yxdwbF402raSuWfkzDtg';
+
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // =================================================================
+        // ESTADO GLOBAL
+        // =================================================================
+        let isLoginMode = true;
+        let allIdeas = [];
+        let currentUser = null;
+        let currentStatusFilter = 'A FAZER';
+
+        // =================================================================
+        // ELEMENTOS DO DOM
+        // =================================================================
+        const loginScreen = document.getElementById('login-screen');
+        const appScreen = document.getElementById('app-screen');
+        // Login
+        const authForm = document.getElementById('auth-form');
+        const phoneInput = document.getElementById('phone');
+        const passwordInput = document.getElementById('password');
+        const submitButton = document.getElementById('submit-button');
+        const buttonText = document.getElementById('button-text');
+        const messageBox = document.getElementById('message-box');
+        const toggleFormLink = document.getElementById('toggle-form');
+        const formTitle = document.getElementById('form-title');
+        // App
+        const profileButton = document.getElementById('profile-button');
+        const kanbanContent = document.getElementById('kanban-content');
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const addIdeaFab = document.getElementById('add-idea-fab');
+        // Modal de Ideia
+        const ideaModal = document.getElementById('idea-modal');
+        const ideaModalTitle = document.getElementById('idea-modal-title');
+        const ideaForm = document.getElementById('idea-form');
+        const ideaIdInput = document.getElementById('idea-id');
+        const ideaTitleInput = document.getElementById('idea-title');
+        const ideaDescriptionInput = document.getElementById('idea-description');
+        const ideaStatusSelect = document.getElementById('idea-status');
+        const ideaModalClose = document.getElementById('idea-modal-close');
+        const ideaModalSave = document.getElementById('idea-modal-save');
+        // Modal de Perfil
+        const profileModal = document.getElementById('profile-modal');
+        const profileForm = document.getElementById('profile-form');
+        const profileNameInput = document.getElementById('profile-name');
+        const profileModalClose = document.getElementById('profile-modal-close');
+        const logoutButtonModal = document.getElementById('logout-button-modal');
+        const themeLightBtn = document.getElementById('theme-light');
+        const themeDarkBtn = document.getElementById('theme-dark');
+
+        // =================================================================
+        // LÓGICA DE AUTENTICAÇÃO
+        // =================================================================
+
+        supabaseClient.auth.onAuthStateChange(async (event, session) => {
+            if (session) {
+                loginScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                await fetchUserData();
+                await fetchAndRenderIdeas();
+            } else {
+                loginScreen.classList.remove('hidden');
+                appScreen.classList.add('hidden');
+                currentUser = null;
+                allIdeas = [];
+            }
+        });
+
+        authForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setLoading(true);
+            const phone = phoneInput.value;
+            const password = passwordInput.value;
+            const email = `${phone}@example.com`;
+
+            try {
+                if (isLoginMode) {
+                    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
+                } else {
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email,
+                        password,
+                        options: { data: { phone: phone } }
+                    });
+                    if (error) throw error;
+                    if (!data.session) {
+                        showMessage('Cadastro realizado! Por favor, faça o login para continuar.', 'success');
+                        isLoginMode = true;
+                        updateFormUI();
+                    }
+                }
+            } catch (error) {
+                showMessage(`Erro: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
+            }
+        });
+        
+        logoutButtonModal.addEventListener('click', async () => {
+            await supabaseClient.auth.signOut();
+        });
+
+        toggleFormLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+            updateFormUI();
+        });
+        
+        async function fetchUserData() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                const { data, error } = await supabaseClient.from('usuarios').select('nome').eq('id', user.id).single();
+                if (data) {
+                    currentUser = { ...user, nome: data.nome };
+                    updateProfileUI();
+                } else {
+                    currentUser = user;
+                    updateProfileUI();
+                }
+            }
+        }
+
+        // =================================================================
+        // LÓGICA DO APLICATIVO
+        // =================================================================
+        
+        async function fetchAndRenderIdeas() {
+            const { data, error } = await supabaseClient.from('ideias').select('*').order('created_at', { ascending: false });
+            if (error) {
+                console.error('Erro ao buscar ideias:', error);
+                return;
+            }
+            allIdeas = data;
+            renderIdeasByStatus();
+        }
+
+        function renderIdeasByStatus() {
+            kanbanContent.innerHTML = '';
+            const filteredIdeas = allIdeas.filter(idea => idea.status === currentStatusFilter);
+
+            if (filteredIdeas.length === 0) {
+                kanbanContent.innerHTML = `<div class="text-center text-gray-500 mt-10">
+                    <p class="font-semibold">Nenhuma ideia aqui!</p>
+                    <p class="text-sm">Adicione uma nova ideia no botão +</p>
+                </div>`;
+                return;
+            }
+
+            filteredIdeas.forEach(idea => {
+                const card = createIdeaCard(idea);
+                kanbanContent.appendChild(card);
+            });
+        }
+
+        function createIdeaCard(idea) {
+            const card = document.createElement('div');
+            card.className = 'p-4 rounded-xl shadow-md cursor-pointer transition-transform duration-200 active:scale-95';
+            card.style.backgroundColor = 'rgb(var(--card-background-rgb))';
+            card.style.borderColor = 'rgb(var(--card-border-rgb))';
+            card.dataset.id = idea.id;
+            const date = new Date(idea.created_at).toLocaleDateString('pt-BR');
+            card.innerHTML = `
+                <h3 class="font-bold text-lg mb-2 truncate">${idea.titulo}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3 h-10 overflow-hidden text-ellipsis">${idea.descricao || ''}</p>
+                <div class="flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
+                    <span>ID: ${idea.id}</span>
+                    <span>${date}</span>
+                </div>
+            `;
+            card.addEventListener('click', () => openIdeaModal(idea));
+            return card;
+        }
+        
+        // Navegação por abas
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                navTabs.forEach(t => t.classList.remove('active-tab', 'text-indigo-600'));
+                tab.classList.add('active-tab', 'text-indigo-600');
+                currentStatusFilter = tab.dataset.status;
+                renderIdeasByStatus();
+            });
+        });
+
+        // =================================================================
+        // LÓGICA DOS MODAIS
+        // =================================================================
+
+        // Modal de Ideia
+        function openIdeaModal(idea = null) {
+            ideaForm.reset();
+            if (idea) {
+                ideaModalTitle.textContent = 'Editar Ideia';
+                ideaIdInput.value = idea.id;
+                ideaTitleInput.value = idea.titulo;
+                ideaDescriptionInput.value = idea.descricao;
+                ideaStatusSelect.value = idea.status;
+            } else {
+                ideaModalTitle.textContent = 'Nova Ideia';
+                ideaIdInput.value = '';
+                ideaStatusSelect.value = currentStatusFilter;
+            }
+            ideaModal.classList.remove('hidden');
+            setTimeout(() => ideaModal.classList.remove('modal-hidden'), 10);
+        }
+
+        function closeIdeaModal() {
+            ideaModal.classList.add('modal-hidden');
+            setTimeout(() => ideaModal.classList.add('hidden'), 300);
+        }
+        
+        addIdeaFab.addEventListener('click', () => openIdeaModal());
+        ideaModalClose.addEventListener('click', closeIdeaModal);
+        ideaModal.querySelector('.modal-backdrop').addEventListener('click', closeIdeaModal);
+        
+        ideaForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            ideaModalSave.classList.add('btn-loading');
+            ideaModalSave.disabled = true;
+
+            const id = ideaIdInput.value;
+            const ideaData = {
+                titulo: ideaTitleInput.value,
+                descricao: ideaDescriptionInput.value,
+                status: ideaStatusSelect.value,
+                user_id: currentUser.id // CORREÇÃO: Adiciona o ID do usuário
+            };
+
+            let error;
+            if (id) { // Atualizar
+                const { error: updateError } = await supabaseClient.from('ideias').update(ideaData).eq('id', id);
+                error = updateError;
+            } else { // Criar
+                const { error: insertError } = await supabaseClient.from('ideias').insert([ideaData]);
+                error = insertError;
+            }
+
+            ideaModalSave.classList.remove('btn-loading');
+            ideaModalSave.disabled = false;
+
+            if (error) {
+                alert(`Erro: ${error.message}`);
+            } else {
+                closeIdeaModal();
+                await fetchAndRenderIdeas();
+            }
+        });
+
+        // Modal de Perfil
+        function openProfileModal() {
+            profileModal.classList.remove('hidden');
+            setTimeout(() => profileModal.classList.remove('modal-hidden'), 10);
+        }
+        
+        function closeProfileModal() {
+            profileModal.classList.add('modal-hidden');
+            setTimeout(() => profileModal.classList.add('hidden'), 300);
+        }
+
+        function updateProfileUI() {
+            if (currentUser) {
+                profileNameInput.value = currentUser.nome || '';
+                profileButton.textContent = (currentUser.nome || 'P').charAt(0).toUpperCase();
+            }
+        }
+
+        profileButton.addEventListener('click', openProfileModal);
+        profileModalClose.addEventListener('click', closeProfileModal);
+        profileModal.querySelector('.modal-backdrop').addEventListener('click', closeProfileModal);
+
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newName = profileNameInput.value;
+            const { error } = await supabaseClient.from('usuarios').update({ nome: newName }).eq('id', currentUser.id);
+            if (error) {
+                alert(`Erro ao atualizar nome: ${error.message}`);
+            } else {
+                await fetchUserData();
+                closeProfileModal();
+            }
+        });
+        
+        // Lógica de Tema
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                themeDarkBtn.classList.add('border-indigo-500');
+                themeLightBtn.classList.remove('border-indigo-500');
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeLightBtn.classList.add('border-indigo-500');
+                themeDarkBtn.classList.remove('border-indigo-500');
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        themeLightBtn.addEventListener('click', () => applyTheme('light'));
+        themeDarkBtn.addEventListener('click', () => applyTheme('dark'));
+        
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(savedTheme);
+
+        // =================================================================
+        // FUNÇÕES AUXILIARES DE LOGIN UI
+        // =================================================================
+        
+        function updateFormUI() {
+            if (isLoginMode) {
+                formTitle.textContent = 'Acessar sua conta';
+                buttonText.textContent = 'Entrar';
+                toggleFormLink.textContent = 'Não tem uma conta? Cadastre-se';
+            } else {
+                formTitle.textContent = 'Crie sua conta';
+                buttonText.textContent = 'Cadastrar';
+                toggleFormLink.textContent = 'Já tem uma conta? Faça login';
+            }
+            messageBox.textContent = '';
+        }
+
+        function setLoading(isLoading) {
+            submitButton.disabled = isLoading;
+            if (isLoading) {
+                submitButton.classList.add('btn-loading');
+                buttonText.textContent = 'Aguarde...';
+            } else {
+                updateFormUI();
+            }
+        }
+
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = type === 'error' ? 'text-center text-sm font-medium text-red-600' : 
+                                  type === 'success' ? 'text-center text-sm font-medium text-green-600' : 
+                                  'text-center text-sm font-medium text-gray-600';
+        }
+    </script>
+</body>
+</html>
