@@ -49,6 +49,10 @@
         
         .active-tab { color: rgb(var(--accent-rgb)); }
         .active-tab-bg { background-color: rgba(var(--accent-rgb), 0.1); }
+        .category-pill[data-selected="true"] {
+            background-color: rgb(var(--accent-rgb));
+            color: rgb(var(--background-rgb));
+        }
     </style>
 </head>
 <body class="overscroll-none">
@@ -112,7 +116,6 @@
             <h3 id="idea-modal-title" class="text-2xl font-bold mb-6">Nova Ideia</h3>
             <form id="idea-form" class="space-y-4">
                 <input type="hidden" id="idea-id">
-                <input type="hidden" id="idea-is-public">
                 <div>
                     <label for="idea-title" class="block text-sm font-medium mb-1">Título</label>
                     <input type="text" id="idea-title" required class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500">
@@ -120,6 +123,24 @@
                 <div>
                     <label for="idea-description" class="block text-sm font-medium mb-1">Descrição</label>
                     <textarea id="idea-description" rows="4" class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500"></textarea>
+                </div>
+                <div>
+                    <label for="idea-image-url" class="block text-sm font-medium mb-1">URL da Imagem de Capa</label>
+                    <input type="url" id="idea-image-url" class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500" placeholder="https://exemplo.com/imagem.png">
+                </div>
+                <div>
+                    <label for="idea-links" class="block text-sm font-medium mb-1">Links de Referência (um por linha)</label>
+                    <textarea id="idea-links" rows="3" class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Categorias</label>
+                    <div id="category-pills" class="flex flex-wrap gap-2 mb-3">
+                        <!-- Pills de categoria serão injetadas aqui -->
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-category-name" autocomplete="off" class="flex-grow p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500" placeholder="Nova categoria...">
+                        <button type="button" id="add-category-button" class="p-3 rounded-xl font-semibold bg-gray-200 text-gray-800 flex items-center justify-center">+</button>
+                    </div>
                 </div>
                 <div>
                     <label for="idea-status" class="block text-sm font-medium mb-1">Status</label>
@@ -170,26 +191,20 @@
         const SUPABASE_URL = 'https://jqsusfxfabubionvjkso.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxc3VzZnhmYWJ1YmlvbnZqa3NvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDYxMDUsImV4cCI6MjA3MTYyMjEwNX0.jI2JEeMAiX1BK5JEufGoVv-yxdwbF402raSuWfkzDtg';
         const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                // CORREÇÃO: Desativa a persistência da sessão para forçar o login sempre
-                persistSession: false
-            }
-        });
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // --- ESTADO GLOBAL ---
-        let isLoginMode = true, allIdeas = [], currentUser = null, currentStatusFilter = 'A FAZER';
+        let isLoginMode = true, allIdeas = [], currentUser = null, userCategories = [], currentStatusFilter = 'A FAZER';
 
         // --- ELEMENTOS DO DOM ---
         const loginScreen = document.getElementById('login-screen'), appScreen = document.getElementById('app-screen'), loadingScreen = document.getElementById('loading-screen');
         const authForm = document.getElementById('auth-form'), phoneInput = document.getElementById('phone'), passwordInput = document.getElementById('password'), submitButton = document.getElementById('submit-button'), buttonText = document.getElementById('button-text'), messageBox = document.getElementById('message-box'), toggleFormLink = document.getElementById('toggle-form'), formTitle = document.getElementById('form-title');
         const profileButton = document.getElementById('profile-button'), kanbanContent = document.getElementById('kanban-content'), navTabs = document.querySelectorAll('.nav-tab'), addIdeaFab = document.getElementById('add-idea-fab');
-        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareOptions = document.getElementById('share-options'), copyLinkButton = document.getElementById('copy-link-button'), whatsappShareButton = document.getElementById('whatsapp-share-button');
+        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareOptions = document.getElementById('share-options'), copyLinkButton = document.getElementById('copy-link-button'), whatsappShareButton = document.getElementById('whatsapp-share-button'), ideaImageUrlInput = document.getElementById('idea-image-url'), ideaLinksInput = document.getElementById('idea-links'), categoryPillsContainer = document.getElementById('category-pills'), newCategoryNameInput = document.getElementById('new-category-name'), addCategoryButton = document.getElementById('add-category-button');
         const profileModal = document.getElementById('profile-modal'), profileForm = document.getElementById('profile-form'), profileNameInput = document.getElementById('profile-name'), profileModalClose = document.getElementById('profile-modal-close'), logoutButtonModal = document.getElementById('logout-button-modal');
 
         // --- LÓGICA DE INICIALIZAÇÃO E AUTENTICAÇÃO ---
         
-        // Função para mostrar a tela correta
         function showScreen(screenName) {
             loginScreen.classList.add('hidden');
             appScreen.classList.add('hidden');
@@ -197,15 +212,14 @@
             document.getElementById(`${screenName}-screen`).classList.remove('hidden');
         }
 
-        // Função principal para carregar dados do app
         async function loadAppData() {
             await fetchUserData();
+            await fetchUserCategories();
             await fetchAndRenderIdeas();
         }
 
-        // Listener principal de autenticação
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN') {
+            if (session) {
                 showScreen('loading');
                 try {
                     await loadAppData();
@@ -216,16 +230,18 @@
                     showMessage("Não foi possível carregar seus dados. Tente fazer o login novamente.", "error");
                     showScreen('login');
                 }
-            } else if (event === 'SIGNED_OUT') {
-                currentUser = null;
-                allIdeas = [];
+            } else {
+                currentUser = null; allIdeas = [];
                 showScreen('login');
             }
         });
         
-        // Inicializa a UI na primeira carga da página
         document.addEventListener('DOMContentLoaded', () => {
-             showScreen('login'); // Começa mostrando o login por padrão
+             supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                if (!session) {
+                    showScreen('login');
+                }
+             });
         });
 
         authForm.addEventListener('submit', async (e) => {
@@ -264,6 +280,12 @@
         }
 
         // --- LÓGICA DO APP ---
+        async function fetchUserCategories() {
+            const { data, error } = await supabaseClient.from('categorias').select('*');
+            if (error) throw new Error(`Erro ao buscar categorias: ${error.message}`);
+            userCategories = data || [];
+        }
+
         async function fetchAndRenderIdeas() {
             const { data, error } = await supabaseClient.from('ideias').select('*').order('created_at', { ascending: false });
             if (error) throw new Error(`Erro ao buscar ideias: ${error.message}`);
@@ -283,15 +305,18 @@
 
         function createIdeaCard(idea) {
             const card = document.createElement('div');
-            card.className = 'p-5 rounded-2xl shadow-lg cursor-pointer transition-transform duration-200 active:scale-95 glass-card';
+            card.className = 'p-5 rounded-2xl shadow-lg cursor-pointer transition-transform duration-200 active:scale-95 glass-card overflow-hidden relative';
             card.dataset.id = idea.id;
             const date = new Date(idea.created_at).toLocaleDateString('pt-BR');
             card.innerHTML = `
-                <h3 class="font-bold text-lg mb-2 truncate">${idea.titulo}</h3>
-                <p class="text-sm text-gray-500 mb-3 h-10 overflow-hidden text-ellipsis">${idea.descricao || ''}</p>
-                <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t" style="border-color: rgba(var(--subtle-border-rgb), 0.5)">
-                    <span>ID: ${idea.id}</span>
-                    <span>${date}</span>
+                ${idea.url_imagem ? `<img src="${idea.url_imagem}" alt="${idea.titulo}" class="absolute inset-0 w-full h-full object-cover opacity-10 z-0">` : ''}
+                <div class="relative z-10">
+                    <h3 class="font-bold text-lg mb-2 truncate">${idea.titulo}</h3>
+                    <p class="text-sm text-gray-500 mb-3 h-10 overflow-hidden text-ellipsis">${idea.descricao || ''}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t" style="border-color: rgba(var(--subtle-border-rgb), 0.5)">
+                        <span>ID: ${idea.id}</span>
+                        <span>${date}</span>
+                    </div>
                 </div>
             `;
             card.addEventListener('click', () => openIdeaModal(idea));
@@ -311,16 +336,69 @@
         function openModal(modal) { modal.classList.remove('hidden'); setTimeout(() => modal.classList.remove('modal-hidden'), 10); }
         function closeModal(modal) { modal.classList.add('modal-hidden'); setTimeout(() => modal.classList.add('hidden'), 300); }
 
-        function openIdeaModal(idea = null) {
+        async function openIdeaModal(idea = null) {
             ideaForm.reset();
             ideaModalTitle.textContent = idea ? 'Editar Ideia' : 'Nova Ideia';
             ideaIdInput.value = idea ? idea.id : '';
             ideaTitleInput.value = idea ? idea.titulo : '';
             ideaDescriptionInput.value = idea ? idea.descricao : '';
+            ideaImageUrlInput.value = (idea && idea.url_imagem && idea.url_imagem !== 'null') ? idea.url_imagem : '';
+            
+            let linksArray = [];
+            if (idea && idea.links_externos) {
+                try {
+                    linksArray = typeof idea.links_externos === 'string' ? JSON.parse(idea.links_externos) : idea.links_externos;
+                    if (!Array.isArray(linksArray)) linksArray = [linksArray.toString()];
+                } catch (e) {
+                    linksArray = [];
+                }
+            }
+            ideaLinksInput.value = linksArray.join('\n');
+
             ideaStatusSelect.value = idea ? idea.status : currentStatusFilter;
+            
+            await renderCategoryPills(idea ? idea.id : null);
+
             shareOptions.style.display = idea ? 'flex' : 'none';
             openModal(ideaModal);
         }
+
+        async function renderCategoryPills(ideaId) {
+            categoryPillsContainer.innerHTML = '';
+            let selectedCategoryIds = new Set();
+            if (ideaId) {
+                const { data } = await supabaseClient.from('ideia_categoria').select('categoria_id').eq('ideia_id', ideaId);
+                if (data) data.forEach(item => selectedCategoryIds.add(item.categoria_id));
+            }
+
+            userCategories.forEach(cat => {
+                const pill = document.createElement('button');
+                pill.type = 'button';
+                pill.dataset.id = cat.id;
+                pill.textContent = cat.nome;
+                pill.className = 'category-pill px-3 py-1 text-sm rounded-full font-semibold bg-gray-200 text-gray-700';
+                if (selectedCategoryIds.has(cat.id)) {
+                    pill.dataset.selected = 'true';
+                }
+                pill.addEventListener('click', () => {
+                    pill.dataset.selected = pill.dataset.selected === 'true' ? 'false' : 'true';
+                });
+                categoryPillsContainer.appendChild(pill);
+            });
+        }
+
+        addCategoryButton.addEventListener('click', async () => {
+            const name = newCategoryNameInput.value.trim();
+            if (!name) return;
+            const { data, error } = await supabaseClient.from('categorias').insert({ nome: name, user_id: currentUser.id }).select().single();
+            if (error) {
+                alert(`Erro ao criar categoria: ${error.message}`);
+            } else {
+                newCategoryNameInput.value = '';
+                userCategories.push(data);
+                await renderCategoryPills(ideaIdInput.value ? parseInt(ideaIdInput.value) : null);
+            }
+        });
 
         addIdeaFab.addEventListener('click', () => openIdeaModal());
         ideaModalClose.addEventListener('click', () => closeModal(ideaModal));
@@ -328,15 +406,38 @@
         
         ideaForm.addEventListener('submit', async (e) => {
             e.preventDefault(); ideaModalSave.classList.add('btn-loading'); ideaModalSave.disabled = true;
+            
+            const links = ideaLinksInput.value.split('\n').map(link => link.trim()).filter(link => link);
             const ideaData = {
-                titulo: ideaTitleInput.value, descricao: ideaDescriptionInput.value,
-                status: ideaStatusSelect.value, user_id: currentUser.id
+                titulo: ideaTitleInput.value, 
+                descricao: ideaDescriptionInput.value,
+                status: ideaStatusSelect.value, 
+                user_id: currentUser.id,
+                url_imagem: ideaImageUrlInput.value || null,
+                links_externos: links.length > 0 ? links : null
             };
             const id = ideaIdInput.value;
-            const { error } = id ? await supabaseClient.from('ideias').update(ideaData).eq('id', id) : await supabaseClient.from('ideias').insert([ideaData]);
+            
+            const { data: savedIdea, error } = id 
+                ? await supabaseClient.from('ideias').update(ideaData).eq('id', id).select().single()
+                : await supabaseClient.from('ideias').insert([ideaData]).select().single();
+
+            if (error) {
+                alert(`Erro: ${error.message}`);
+            } else {
+                const selectedPills = Array.from(categoryPillsContainer.querySelectorAll('.category-pill[data-selected="true"]'));
+                const selectedCategoryIds = selectedPills.map(pill => parseInt(pill.dataset.id));
+                
+                await supabaseClient.from('ideia_categoria').delete().eq('ideia_id', savedIdea.id);
+                if (selectedCategoryIds.length > 0) {
+                    const associations = selectedCategoryIds.map(catId => ({ ideia_id: savedIdea.id, categoria_id: catId }));
+                    await supabaseClient.from('ideia_categoria').insert(associations);
+                }
+                
+                closeModal(ideaModal); 
+                await fetchAndRenderIdeas();
+            }
             ideaModalSave.classList.remove('btn-loading'); ideaModalSave.disabled = false;
-            if (error) { alert(`Erro: ${error.message}`); } 
-            else { closeModal(ideaModal); await fetchAndRenderIdeas(); }
         });
 
         copyLinkButton.addEventListener('click', async () => {
