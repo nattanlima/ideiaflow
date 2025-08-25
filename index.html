@@ -144,8 +144,8 @@
                     <input type="url" id="idea-image-url" class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500" placeholder="https://exemplo.com/imagem.png">
                 </div>
                 <div>
-                    <label for="idea-links" class="block text-sm font-medium mb-1">Links de Referência (um por linha)</label>
-                    <textarea id="idea-links" rows="3" class="w-full p-3 border-0 rounded-xl bg-gray-100 focus:ring-2 focus:ring-gray-500"></textarea>
+                    <label class="block text-sm font-medium mb-1">Links de Referência</label>
+                    <div id="idea-links-display" class="space-y-2"></div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-2">Categorias</label>
@@ -215,7 +215,7 @@
         const loginScreen = document.getElementById('login-screen'), appScreen = document.getElementById('app-screen'), loadingScreen = document.getElementById('loading-screen');
         const authForm = document.getElementById('auth-form'), phoneInput = document.getElementById('phone'), passwordInput = document.getElementById('password'), submitButton = document.getElementById('submit-button'), buttonText = document.getElementById('button-text'), messageBox = document.getElementById('message-box'), toggleFormLink = document.getElementById('toggle-form'), formTitle = document.getElementById('form-title'), confirmPasswordGroup = document.getElementById('confirm-password-group'), confirmPasswordInput = document.getElementById('confirm-password');
         const profileButton = document.getElementById('profile-button'), kanbanContent = document.getElementById('kanban-content'), navTabs = document.querySelectorAll('.nav-tab'), addIdeaFab = document.getElementById('add-idea-fab');
-        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareOptions = document.getElementById('share-options'), copyLinkButton = document.getElementById('copy-link-button'), whatsappShareButton = document.getElementById('whatsapp-share-button'), ideaImageUrlInput = document.getElementById('idea-image-url'), ideaLinksInput = document.getElementById('idea-links'), categoryPillsContainer = document.getElementById('category-pills'), newCategoryNameInput = document.getElementById('new-category-name'), addCategoryButton = document.getElementById('add-category-button');
+        const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareOptions = document.getElementById('share-options'), copyLinkButton = document.getElementById('copy-link-button'), whatsappShareButton = document.getElementById('whatsapp-share-button'), ideaImageUrlInput = document.getElementById('idea-image-url'), ideaLinksDisplay = document.getElementById('idea-links-display'), categoryPillsContainer = document.getElementById('category-pills'), newCategoryNameInput = document.getElementById('new-category-name'), addCategoryButton = document.getElementById('add-category-button');
         const profileModal = document.getElementById('profile-modal'), profileForm = document.getElementById('profile-form'), profileNameInput = document.getElementById('profile-name'), profileModalClose = document.getElementById('profile-modal-close'), logoutButtonModal = document.getElementById('logout-button-modal');
 
         // --- LÓGICA DE INICIALIZAÇÃO E AUTENTICAÇÃO ---
@@ -379,7 +379,7 @@
                     linksArray = [];
                 }
             }
-            ideaLinksInput.value = linksArray.join('\n');
+            renderClickableLinks(linksArray);
 
             ideaStatusSelect.value = idea ? idea.status : currentStatusFilter;
             
@@ -387,6 +387,22 @@
 
             shareOptions.style.display = idea ? 'flex' : 'none';
             openModal(ideaModal);
+        }
+
+        function renderClickableLinks(links) {
+            ideaLinksDisplay.innerHTML = '';
+            if (links && links.length > 0) {
+                links.forEach(link => {
+                    const a = document.createElement('a');
+                    a.href = link;
+                    a.textContent = link;
+                    a.target = '_blank';
+                    a.className = 'block text-blue-600 hover:underline truncate';
+                    ideaLinksDisplay.appendChild(a);
+                });
+            } else {
+                ideaLinksDisplay.innerHTML = '<p class="text-sm text-gray-500">Nenhum link de referência.</p>';
+            }
         }
 
         async function renderCategoryPills(ideaId) {
@@ -433,7 +449,7 @@
         ideaForm.addEventListener('submit', async (e) => {
             e.preventDefault(); ideaModalSave.classList.add('btn-loading'); ideaModalSave.disabled = true;
             
-            const links = ideaLinksInput.value.split('\n').map(link => link.trim()).filter(link => link);
+            const links = Array.from(ideaLinksDisplay.querySelectorAll('a')).map(a => a.href);
             const ideaData = {
                 titulo: ideaTitleInput.value, 
                 descricao: ideaDescriptionInput.value,
@@ -531,4 +547,3 @@
     </script>
 </body>
 </html>
-�
