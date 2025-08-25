@@ -79,7 +79,7 @@
                 return;
             }
 
-            // Chama a função segura 'get_public_idea'
+            // CORREÇÃO: Chama a função segura 'get_public_idea' em vez de consultar a tabela diretamente.
             const { data: idea, error } = await supabaseClient
                 .rpc('get_public_idea', { idea_id: ideaId })
                 .single();
@@ -116,7 +116,7 @@
 
             // Configura o botão do WhatsApp
             const phoneNumber = "5511920322795"; // Número sem o '+'
-            const message = encodeURIComponent("Quero registrar minhas ideias!");
+            const message = encodeURIComponent("quero registrar minhas ideiais");
             ctaButton.href = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${message}`;
             ctaButton.classList.remove('hidden');
         }
