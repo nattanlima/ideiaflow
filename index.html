@@ -70,9 +70,24 @@
                 <h2 id="form-title" class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">Acessar sua conta</h2>
             </div>
             <form id="auth-form" class="mt-8 space-y-6">
-                <div class="rounded-xl shadow-sm -space-y-px">
-                    <input id="phone" name="phone" type="tel" autocomplete="tel" required class="relative block w-full appearance-none rounded-t-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Telefone com código do país">
-                    <input id="password" name="password" type="password" autocomplete="current-password" required class="relative block w-full appearance-none rounded-b-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Senha (mínimo 6 caracteres)">
+                <div class="space-y-4">
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Telefone</label>
+                        <div class="mt-1 flex rounded-xl shadow-sm">
+                            <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                                🇧🇷 55
+                            </span>
+                            <input id="phone" name="phone" type="tel" autocomplete="tel" required class="relative block w-full appearance-none rounded-r-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="DDD + Número">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required class="mt-1 relative block w-full appearance-none rounded-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div id="confirm-password-group" class="hidden">
+                        <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirmar Senha</label>
+                        <input id="confirm-password" name="confirm-password" type="password" class="mt-1 relative block w-full appearance-none rounded-xl border-0 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-500 focus:z-10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500 sm:text-sm" placeholder="Repita sua senha">
+                    </div>
                 </div>
                 <button type="submit" id="submit-button" class="group relative flex w-full justify-center rounded-xl border border-transparent bg-gray-900 py-3 px-4 text-sm font-semibold text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"><span id="button-text">Entrar</span></button>
             </form>
@@ -198,7 +213,7 @@
 
         // --- ELEMENTOS DO DOM ---
         const loginScreen = document.getElementById('login-screen'), appScreen = document.getElementById('app-screen'), loadingScreen = document.getElementById('loading-screen');
-        const authForm = document.getElementById('auth-form'), phoneInput = document.getElementById('phone'), passwordInput = document.getElementById('password'), submitButton = document.getElementById('submit-button'), buttonText = document.getElementById('button-text'), messageBox = document.getElementById('message-box'), toggleFormLink = document.getElementById('toggle-form'), formTitle = document.getElementById('form-title');
+        const authForm = document.getElementById('auth-form'), phoneInput = document.getElementById('phone'), passwordInput = document.getElementById('password'), submitButton = document.getElementById('submit-button'), buttonText = document.getElementById('button-text'), messageBox = document.getElementById('message-box'), toggleFormLink = document.getElementById('toggle-form'), formTitle = document.getElementById('form-title'), confirmPasswordGroup = document.getElementById('confirm-password-group'), confirmPasswordInput = document.getElementById('confirm-password');
         const profileButton = document.getElementById('profile-button'), kanbanContent = document.getElementById('kanban-content'), navTabs = document.querySelectorAll('.nav-tab'), addIdeaFab = document.getElementById('add-idea-fab');
         const ideaModal = document.getElementById('idea-modal'), ideaModalTitle = document.getElementById('idea-modal-title'), ideaForm = document.getElementById('idea-form'), ideaIdInput = document.getElementById('idea-id'), ideaTitleInput = document.getElementById('idea-title'), ideaDescriptionInput = document.getElementById('idea-description'), ideaStatusSelect = document.getElementById('idea-status'), ideaModalClose = document.getElementById('idea-modal-close'), ideaModalSave = document.getElementById('idea-modal-save'), shareOptions = document.getElementById('share-options'), copyLinkButton = document.getElementById('copy-link-button'), whatsappShareButton = document.getElementById('whatsapp-share-button'), ideaImageUrlInput = document.getElementById('idea-image-url'), ideaLinksInput = document.getElementById('idea-links'), categoryPillsContainer = document.getElementById('category-pills'), newCategoryNameInput = document.getElementById('new-category-name'), addCategoryButton = document.getElementById('add-category-button');
         const profileModal = document.getElementById('profile-modal'), profileForm = document.getElementById('profile-form'), profileNameInput = document.getElementById('profile-name'), profileModalClose = document.getElementById('profile-modal-close'), logoutButtonModal = document.getElementById('logout-button-modal');
@@ -246,12 +261,19 @@
 
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault(); setLoading(true);
-            const phone = phoneInput.value, password = passwordInput.value, email = `${phone}@example.com`;
+            const phone = `55${phoneInput.value.replace(/\D/g, '')}`;
+            const password = passwordInput.value;
+            const email = `${phone}@example.com`;
+            
             try {
                 if (isLoginMode) {
                     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
                 } else {
+                    const confirmPassword = confirmPasswordInput.value;
+                    if (password !== confirmPassword) {
+                        throw new Error("As senhas não coincidem.");
+                    }
                     const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { phone } } });
                     if (error) throw error;
                     if (!data.session) {
@@ -263,7 +285,11 @@
             finally { setLoading(false); }
         });
         
-        logoutButtonModal.addEventListener('click', () => supabaseClient.auth.signOut());
+        logoutButtonModal.addEventListener('click', () => {
+            allIdeas = [];
+            currentUser = null;
+            supabaseClient.auth.signOut();
+        });
         toggleFormLink.addEventListener('click', (e) => { e.preventDefault(); isLoginMode = !isLoginMode; updateFormUI(); });
         
         async function fetchUserData() {
@@ -488,6 +514,7 @@
             formTitle.textContent = isLoginMode ? 'Acessar sua conta' : 'Crie sua conta';
             buttonText.textContent = isLoginMode ? 'Entrar' : 'Cadastrar';
             toggleFormLink.textContent = isLoginMode ? 'Não tem uma conta? Cadastre-se' : 'Já tem uma conta? Faça login';
+            confirmPasswordGroup.classList.toggle('hidden', isLoginMode);
             messageBox.textContent = '';
         }
 
@@ -504,3 +531,4 @@
     </script>
 </body>
 </html>
+�
