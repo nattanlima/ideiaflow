@@ -170,7 +170,12 @@
         const SUPABASE_URL = 'https://jqsusfxfabubionvjkso.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxc3VzZnhmYWJ1YmlvbnZqa3NvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNDYxMDUsImV4cCI6MjA3MTYyMjEwNX0.jI2JEeMAiX1BK5JEufGoVv-yxdwbF402raSuWfkzDtg';
         const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                // CORREÇÃO: Desativa a persistência da sessão para forçar o login sempre
+                persistSession: false
+            }
+        });
 
         // --- ESTADO GLOBAL ---
         let isLoginMode = true, allIdeas = [], currentUser = null, currentStatusFilter = 'A FAZER';
@@ -200,7 +205,7 @@
 
         // Listener principal de autenticação
         supabaseClient.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'INITIAL_SESSION' && session) {
+            if (event === 'SIGNED_IN') {
                 showScreen('loading');
                 try {
                     await loadAppData();
@@ -208,13 +213,9 @@
                 } catch (error) {
                     console.error("Erro ao inicializar o app:", error);
                     await supabaseClient.auth.signOut();
-                    showMessage("Sessão expirada. Por favor, faça o login novamente.", "error");
+                    showMessage("Não foi possível carregar seus dados. Tente fazer o login novamente.", "error");
                     showScreen('login');
                 }
-            } else if (event === 'SIGNED_IN') {
-                showScreen('loading');
-                await loadAppData();
-                showScreen('app');
             } else if (event === 'SIGNED_OUT') {
                 currentUser = null;
                 allIdeas = [];
